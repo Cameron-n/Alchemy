@@ -13,10 +13,6 @@ show_frame: true           # adds a gray frame to the site
 show_sidebar: false        # show a sidebar instead of the usual header
 minimal: false             # use a dark header
 
-# Theme
-
-theme: jekyll-theme-architect # The theme
-
 # Menu
 
 navigation:                # accepts {file, title, url, icon, sidebaricon}
