@@ -15,7 +15,7 @@ minimal: false             # use a dark header
 
 # Theme
 
-theme: jekyll-theme-minimal # The theme
+theme: jekyll-theme-architect # The theme
 
 # Menu
 
