@@ -92,9 +92,9 @@ We also need to activate WSL. Navigate to (...) and press (...).
 
 ## MySQL
 
-MySQL is a version of SQL, not just a database language but the database language.
-Workshop is a GUI. Don't need it. Is nice to have.
-Maybe Postgres too.
+MySQL is a version of SQL, a language even more ubiquitous than Python in data science. It is a database language for relational databases (basically, data in a table). SQL and Python are the backbone of data Transformations.
+
+Another 'technically' optional program is MySQL Workshop, a GUI to make SQL statements and monitor databases. You don't need is, but it's nice to have.
 
 install MySQL Workbench at [https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
 
