@@ -3,18 +3,19 @@ title: "The ELT Pipeline"
 layout: post
 ---
 
-# Introduction
+## Introduction
+---
+* The E stand for Extraction,
+* The L stands for Load,
+* The T stands for transform.
 
-The E stand for Extraction,
-The L stands for Load,
-The T stands for transform.
+So it looks like we only need, at most, three programs to get our data pipeline going, right? 
 
-So it looks like we only need, at most, three programs to get our data pipeline going, right?
-... If only it was that simple.
+If only it was that simple...
 
 Welcome to my project on setting up a simple data pipeline using entirely open-source software. Like any project, what starts off simple soon becomes complex, even if the intial task seems straightforward. We are going to cover the instillation of all the needed programs, and then configure them to take some data from a public source on the web and send it to a data analysis tool. This will only focus on locally hosted software. We leave the cloud for another day.
 
-# Overview
+## Overview
 
 This is a list of all the programs we will need to install.
 
@@ -31,21 +32,42 @@ This is a list of all the programs we will need to install.
 | dbt              | The T of ELT              |
 | SuperSet         | BI tool                   |
 
-We will install them in that order. Feel free to skip ahead if you already have some programs installed, but check back if something goes wrong.
+We will install them in that order. Feel free to skip ahead if you already have some installed, but check back if something goes wrong.
 
-# Anaconda, Python, and Spyder (and cmd)
+## Anaconda, Python, and Spyder (and cmd)
 
-# Git
+Anacondas, and Pythons, and Spyders, oh my!
 
-# WSL 2, Linux, and Docker Desktop
+Python is a general purpose programming language that is used in Data Science for complex transformations of data. Anaconda manages seperate Python environments so you can run multiple projects with different requirements (like python versions). Though we don't 'technically' need it, it comes with a selection of programs, like Python itself, that makes installation extremely easy. Spyder is an editor for Python and is where we will be actually writing code. It also comes with Anaconda.
 
-# MySQL
+Go to [https://www.anaconda.com/download/](https://www.anaconda.com/download/) to download anaconda, which includes anaconda navigator, a GUI.
 
-# Airbyte
+Once installed, create a new python environment with version ...````*````.
+We can then install Spyder, as well as the command prompt (cmd). I don't think this is strictly needed, but it makes using the cmd easier. Otherwise, we would have to activate the Python environment from the cmd each time.
 
-# dbt
+````*```` I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Use the latest version of Python if you use PostgresSQL or another supported database.
 
-# SuperSet
+## Git
+
+```python
+function hi(x):
+  print(x)
+```
+
+{% highlight python linenos %}
+function hi(x):
+  print(x)
+{% endhighlight %}
+
+## WSL 2, Linux, and Docker Desktop
+
+## MySQL
+
+## Airbyte
+
+## dbt
+
+## SuperSet
 
 # Connecting Google Sheets to MySQL
 
