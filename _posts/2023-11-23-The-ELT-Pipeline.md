@@ -15,6 +15,8 @@ If only it was that simple...
 
 Welcome to my project on setting up a simple data pipeline using entirely open-source software. Like any project, what starts off simple soon becomes complex, even if the intial task seems straightforward. We are going to cover the instillation of all the needed programs, and then configure them to take some data from a public source on the web and send it to a data analysis tool. This will only focus on locally hosted software. We leave the cloud for another day.
 
+To be clear, the purpose of this project is partially to demonstrate my knowledge of (basic) Data Engineering, and partially as a resource for when I, inevitably, forget much of this!
+
 ## Overview
 
 This is a list of all the programs we will need to install.
@@ -49,31 +51,38 @@ We can then install Spyder, as well as the command prompt (cmd). I don't think t
 
 ## Git
 
-```python
-function hi(x):
-  print(x)
-```
-
-{% highlight python linenos %}
-function hi(x):
-  print(x)
-{% endhighlight %}
+(install git using command prompt)
+(list of useful commands)
 
 ## WSL 2, Linux, and Docker Desktop
 
+(install WSl using command prompt)
+(Download Linux)
+(Download docker desktop and activate wsl)
+
 ## MySQL
+
+(Download MySQL Workbench or PostgresSQL (and sql itself?))
 
 ## Airbyte
 
+(install using cmd)
+
 ## dbt
+
+(install  using dbt)
 
 ## SuperSet
 
+(install using cmd using instruction from docker)
+
 # Connecting Google Sheets to MySQL
+
+(google sheet to airbyte with dbt to mysql to superset run on docker)
 
 # To the analysis and beyond!
 
-
+(summary, see you next time...)
 
 
 
