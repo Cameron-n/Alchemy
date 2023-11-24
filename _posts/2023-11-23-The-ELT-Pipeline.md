@@ -7,15 +7,15 @@ layout: post
 ---
 * The E stand for Extraction,
 * The L stands for Load,
-* The T stands for transform.
+* The T stands for Transform.
 
 So it looks like we only need, at most, three programs to get our data pipeline going, right? 
 
 If only it was that simple...
 
-Welcome to my project on setting up a simple data pipeline using entirely open-source software. Like any project, what starts off simple soon becomes complex, even if the intial task seems straightforward. We are going to cover the instillation of all the needed programs, and then configure them to take some data from a public source on the web and send it to a data analysis tool. This will only focus on locally hosted software. We leave the cloud for another day.
+Welcome to my project on setting up a simple data pipeline using entirely open-source software. Like any project, what starts off simple soon becomes complex, even if the intial task seems straightforward. We are going to cover the instillation of all the needed programs, and then configure them to take some data from a public source on the web and send it to a data analysis tool. This will only focus on locally hosted software. We leave the cloud for another day (when I learn how to do it!).
 
-To be clear, the purpose of this project is partially to demonstrate my knowledge of (basic) Data Engineering, and partially as a resource for when I, inevitably, forget much of this! It is overkill for what is essentially moving a Google Sheets document into a database (once), but the basic principles used here can be scaled up to massive amounts of data continuously extracted with complex transformations using multiple sources and destinations.
+To be clear, the purpose of this project is partially to demonstrate my knowledge of (basic) Data Engineering, and partially as a resource for when I, inevitably, forget much of this! It is overkill for what is essentially moving a Google Sheets document into a database (once), but the principles used here can be scaled up to massive amounts of data continuously extracted with complex transformations using multiple sources and destinations.
 
 ## Overview
 
@@ -45,48 +45,54 @@ Python is a general purpose programming language that is used in Data Science fo
 
 Go to [https://www.anaconda.com/download/](https://www.anaconda.com/download/) to download anaconda, which includes anaconda navigator, a GUI.
 
-Once installed, create a new python environment with version ...````*````.
+(picture anaconda_1)
+
+Once installed, create a new Python environment with version 3.9.18 *.
 We can then install Spyder, as well as the command prompt (cmd). I don't think this is strictly needed, but it makes using the cmd easier. Otherwise, we would have to activate the Python environment from the cmd each time.
 
-````*```` I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Check the required version of Python if you use PostgresSQL or another supported database.
+`*` I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Check the required version of Python (probably latest) if you want to try PostgresSQL or another supported database.
 
 ## Git/Github
 
 Git is a tool that tracks changes to software, allowing you to roll-back changes, create multiple copies of software, and log why changes were made, among other things.
 
-Github uses git and is a way to host repositories of code, for instance for collaboration, and is required for Airbyte to run SQL and Python files using dbt. You may also notice this webpage is running on github!
+Github uses git and is a way to host repositories of code, for instance for collaboration, and is required for Airbyte to run SQL and Python files using dbt. You may also notice this webpage is running on github! 
 
 We don't 'technically' need git locally, but, like Anaconda, it makes life easier in the long run and you will need it eventually.
 
-install git at [https://git-scm.com/downloads](https://git-scm.com/downloads).
+Install git at [https://git-scm.com/downloads](https://git-scm.com/downloads).
 
-You will need to setup an account for Github at [https://github.com/](https://github.com/) if you don't have one.
+You will also need to setup an account for Github at [https://github.com/](https://github.com/) if you don't have one.
 
-Some useful Git commands:
+(Github_1 picture)
 
 ## WSL 2, Linux, and Docker Desktop
 
-Windows Service for Linux (WSL) is a ... windows service ... for linux.
+Windows Service for Linux (WSL) is a . . . windows service . . . for linux.
 
-It is a virtual machine that allows Linux to run on windows.
+Although not *for* linux, in that sense. It is a virtual machine that allows Linux to run on windows operating systems.
 
-install WSl using command prompt:
+install WSL using the command prompt:
 
 `wsl --install`
 
 We can then list the available distributions of Linux and select one. I chose Ubuntu.
-`wsl --list --online`
-`wsl --install -d <DistroName>`
 
-Docker allows programs to be run in a container. Containers contains all the neccessary parts to run the programs and are lightweight compared to virtual machines. Some advantages include that software can be shared between systems since the container has everything it needs to run, stand-alone. Another advantage is that it is required by several of the programs we are going to use, which sort of forces our hand.
+`wsl --list --online`
+
+`wsl --install -d <Distribution>`
+
+Docker allows programs to be run in a container. Containers contains all the neccessary parts to run the programs and are lightweight compared to virtual machines. One advantage is that software can be shared between systems since the container has everything it needs to run, stand-alone. Another advantage is that it is required by several of the programs we are going to use, which sort of forces our hand.
 
 Install docker desktop at [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
 
-We also need to activate WSL:
+We also need to activate WSL. Navigate to (...) and press (...).
+
+(picture docker_1)
 
 ## MySQL
 
-MySQL is a versions of SQL, a database language which everyone uses.
+MySQL is a version of SQL, not just a database language but the database language.
 Workshop is a GUI. Don't need it. Is nice to have.
 Maybe Postgres too.
 
