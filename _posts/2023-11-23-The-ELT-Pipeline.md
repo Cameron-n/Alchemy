@@ -15,24 +15,25 @@ If only it was that simple...
 
 Welcome to my project on setting up a simple data pipeline using entirely open-source software. Like any project, what starts off simple soon becomes complex, even if the intial task seems straightforward. We are going to cover the instillation of all the needed programs, and then configure them to take some data from a public source on the web and send it to a data analysis tool. This will only focus on locally hosted software. We leave the cloud for another day.
 
-To be clear, the purpose of this project is partially to demonstrate my knowledge of (basic) Data Engineering, and partially as a resource for when I, inevitably, forget much of this!
+To be clear, the purpose of this project is partially to demonstrate my knowledge of (basic) Data Engineering, and partially as a resource for when I, inevitably, forget much of this! It is overkill for what is essentially moving a Google Sheets document into a database (once), but the basic principles used here can be scaled up to massive amounts of data continuously extracted with complex transformations using multiple sources and destinations.
 
 ## Overview
 
-This is a list of all the programs we will need to install.
+This is a list of all the programs we will need to install. We will need a fair amount of space, approximately 30 GBs but it would be wise to have at least 40 to 50 GBs. This is also intended for Windows 10 (or 11 probably works too).
 
-| Program          | Purpose          |
-|------------------|------------------|
-| Anaconda         | Package manager for Python|
-| Python           | General Purpose Language  |
-| Spyder           | Python Editor             |
-| Git              | Version control           |
-| WSL              | Allows Linux on Windows   |
-| Docker           | Infrastructure            |
-| SQL (MySQL)      | Database                  |
-| Airbyte          | The EL of ELT             |
-| dbt              | The T of ELT              |
-| SuperSet         | BI tool                   |
+| Program          | Purpose                   | Size (approx.)  |
+|------------------|---------------------------|-----------------|
+| Anaconda         | Package manager for Python| 8 GBs           |
+| Python           | General Purpose Language  | part of Anaconda|
+| Spyder           | Python Editor             | part of Anaconda|
+| Git              | Version control           | <1 GB           |
+| WSL              | Allows Linux on Windows   | ~2 GB           |
+| Docker           | Infrastructure            | 20 GBs          |        
+| SQL (MySQL)      | Database                  | part of docker  |
+| Airbyte          | The EL of ELT             | part of docker  |
+| dbt              | The T of ELT              | part of docker  |
+| SuperSet         | BI tool                   | part of docker  |
+| Total            |                           | ~30 GB          |
 
 We will install them in that order. Feel free to skip ahead if you already have some installed, but check back if something goes wrong.
 
@@ -47,42 +48,95 @@ Go to [https://www.anaconda.com/download/](https://www.anaconda.com/download/) t
 Once installed, create a new python environment with version ...````*````.
 We can then install Spyder, as well as the command prompt (cmd). I don't think this is strictly needed, but it makes using the cmd easier. Otherwise, we would have to activate the Python environment from the cmd each time.
 
-````*```` I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Use the latest version of Python if you use PostgresSQL or another supported database.
+````*```` I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Check the required version of Python if you use PostgresSQL or another supported database.
 
-## Git
+## Git/Github
 
-(install git using command prompt)
-(list of useful commands)
+Git is a tool that tracks changes to software, allowing you to roll-back changes, create multiple copies of software, and log why changes were made, among other things.
+
+Github uses git and is a way to host repositories of code, for instance for collaboration, and is required for Airbyte to run SQL and Python files using dbt. You may also notice this webpage is running on github!
+
+We don't 'technically' need git locally, but, like Anaconda, it makes life easier in the long run and you will need it eventually.
+
+install git at [https://git-scm.com/downloads](https://git-scm.com/downloads).
+
+You will need to setup an account for Github at [https://github.com/](https://github.com/) if you don't have one.
+
+Some useful Git commands:
 
 ## WSL 2, Linux, and Docker Desktop
 
-(install WSl using command prompt)
-(Download Linux)
-(Download docker desktop and activate wsl)
+Windows Service for Linux (WSL) is a ... windows service ... for linux.
+
+It is a virtual machine that allows Linux to run on windows.
+
+install WSl using command prompt:
+
+`wsl --install`
+
+We can then list the available distributions of Linux and select one. I chose Ubuntu.
+`wsl --list --online`
+`wsl --install -d <DistroName>`
+
+Docker allows programs to be run in a container. Containers contains all the neccessary parts to run the programs and are lightweight compared to virtual machines. Some advantages include that software can be shared between systems since the container has everything it needs to run, stand-alone. Another advantage is that it is required by several of the programs we are going to use, which sort of forces our hand.
+
+Install docker desktop at [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
+
+We also need to activate WSL:
 
 ## MySQL
 
-(Download MySQL Workbench or PostgresSQL (and sql itself?))
+MySQL is a versions of SQL, a database language which everyone uses.
+Workshop is a GUI. Don't need it. Is nice to have.
+Maybe Postgres too.
+
+install MySQL Workbench at [https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
 
 ## Airbyte
 
-(install using cmd)
+Airbyte is EL of ELT. Also can do T using dbt.
+
+Install using command prompt.
+```
+git clone --depth=1 https://github.com/airbytehq/airbyte.git
+cd airbyte
+bash run-ab-platform.sh
+```
+username: airbyte
+password: password
 
 ## dbt
 
-(install  using dbt)
+The T of dbt. Airbyte uses it. 'Just' runs Python and SQL but powerful. Doesn't work with Python with MySQL which is a shame. Maybe I'll fix it???
+
+Install  using command prompt with Python
+`python -m pip install dbt-postgres`
 
 ## SuperSet
 
-(install using cmd using instruction from docker)
+Buisness Intelligence tool. Like all the other ones, but free!
+
+Install using command prompt using instruction from docker:
 
 # Connecting Google Sheets to MySQL
 
 (google sheet to airbyte with dbt to mysql to superset run on docker)
+This hellscape [https://docs.airbyte.com/integrations/sources/google-sheets/](https://docs.airbyte.com/integrations/sources/google-sheets/)
+
+Setup Airbyte
+
+Setup dbt
+
+Setup SQL
+
+Setup Superset
 
 # To the analysis and beyond!
 
-(summary, see you next time...)
+And that's that. Easy...
 
+None of these steps are particularly hard individually, but there are many, and each brings a chance for something to go wrong. However, if all goes according to plan, you should now have a working data pipeline that brings data from a Source to a Destination, and Transforms it in the database, ready to get analysed.
 
+Next time, we will do the actual analysis, which may require a lot more SQL as well as the scope of what problem(s) we are trying to solve. And a (less than) fancy dashboard in SuperSet.
 
+I hope to see you then.
