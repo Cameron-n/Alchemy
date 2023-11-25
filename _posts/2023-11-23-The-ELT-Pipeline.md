@@ -94,33 +94,40 @@ We also need to activate WSL. Navigate to (...) and press (...).
 
 MySQL is a version of SQL, a language even more ubiquitous than Python in data science. It is a database language for relational databases (basically, data in a table). SQL and Python are the backbone of data Transformations.
 
+Install with docker...
+
 Another 'technically' optional program is MySQL Workshop, a GUI to make SQL statements and monitor databases. You don't need is, but it's nice to have.
 
 install MySQL Workbench at [https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
 
 ## Airbyte
 
-Airbyte is EL of ELT. Also can do T using dbt.
+Airbyte is the EL of ELT. It can take data from a Source to a Destination. It also uses SQL and Python behind the scenes with dbt as we will see later.
 
-Install using command prompt.
+Install using docker.
 ```
 git clone --depth=1 https://github.com/airbytehq/airbyte.git
 cd airbyte
 bash run-ab-platform.sh
 ```
+
+Go to localhost:8080
+
 username: airbyte
+
 password: password
 
 ## dbt
 
-The T of dbt. Airbyte uses it. 'Just' runs Python and SQL but powerful. Doesn't work with Python with MySQL which is a shame. Maybe I'll fix it???
+Data Build Tool, the T of ELT. It allows SQL and Python scripts to be run with ease, including tests. Now, unfortunately, dbt only works with Python for versions of dbt-core ... but dbt-sql requires version ...
 
 Install  using command prompt with Python
+
 `python -m pip install dbt-postgres`
 
 ## SuperSet
 
-Buisness Intelligence tool. Like all the other ones, but free!
+A Buisness Intelligence tool, very similar to PowerBi, Looker Tabloue etc. Like all the other ones, but free!
 
 Install using command prompt using instruction from docker:
 
