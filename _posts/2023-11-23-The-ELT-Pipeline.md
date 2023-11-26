@@ -94,24 +94,29 @@ We also need to activate WSL. Navigate to (...) and press (...).
 
 MySQL is a version of SQL, a language even more ubiquitous than Python in data science. It is a database language for relational databases (basically, data in a table). SQL and Python are the backbone of data Transformations.
 
-Install with docker...
+Install with Docker by using the search bar at the top.
 
-Another 'technically' optional program is MySQL Workshop, a GUI to make SQL statements and monitor databases. You don't need is, but it's nice to have.
+(image here of MySQL_1)
+
+Another 'technically' optional program is MySQL Workshop, a GUI to make SQL statements and monitor databases. You don't need it, but it's nice to have.
+
+(image here of Workshop)
 
 install MySQL Workbench at [https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
 
 ## Airbyte
 
-Airbyte is the EL of ELT. It can take data from a Source to a Destination. It also uses SQL and Python behind the scenes with dbt as we will see later.
+Airbyte is the EL of ELT. It can take data from a Source (Like Google Sheets) to a Destination (Like our MySQL database).
 
-Install using docker.
+Install using the command prompt (after having installed docker).
+
 ```
 git clone --depth=1 https://github.com/airbytehq/airbyte.git
 cd airbyte
 bash run-ab-platform.sh
 ```
 
-Go to localhost:8080
+Go to [http://localhost:8000](http://localhost:8000) to see it up and running. The default credentials are:
 
 username: airbyte
 
@@ -119,9 +124,11 @@ password: password
 
 ## dbt
 
-Data Build Tool, the T of ELT. It allows SQL and Python scripts to be run with ease, including tests. Now, unfortunately, dbt only works with Python for versions of dbt-core ... but dbt-sql requires version ...
+Data Build Tool, the T of ELT. It allows SQL scripts to be run with ease, performing data transformations with simple SELECT statements. Airbyte uses it behind the scenes and we can use it in our transformations by reading files hosted from a Github repository. Python scripts can also be used as of dbt-core version 1.3.  
 
-Install  using command prompt with Python
+Now, unfortunately, dbt-mysql (the adaptor to make dbt work with MySQL) requires an older version of dbt-core and so we cannot use Python scripts from Airbyte. If I were to redo this (and if you want to have a go) I would use PostgresSQL instead. As you will see later, we will just run Python locally. 
+
+Install using command prompt with Python
 
 `python -m pip install dbt-postgres`
 
