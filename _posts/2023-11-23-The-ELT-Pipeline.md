@@ -128,28 +128,82 @@ Data Build Tool, the T of ELT. It allows SQL scripts to be run with ease, perfor
 
 Now, unfortunately, dbt-mysql (the adaptor to make dbt work with MySQL) requires an older version of dbt-core and so we cannot use Python scripts from Airbyte. If I were to redo this (and if you want to have a go) I would use PostgresSQL instead. As you will see later, we will just run Python locally. 
 
-Install using command prompt with Python
+Install using command prompt with Python. This will be installed locally, then we will have our files uploaded to Github for Airbyte to use.
 
 `python -m pip install dbt-postgres`
 
+We also need to install a version on docker for Airbyte to use.
+
+`docker pull ghcr.io/dbeatty10/dbt-mysql`
+
 ## SuperSet
 
-A Buisness Intelligence tool, very similar to PowerBi, Looker Tabloue etc. Like all the other ones, but free!
+A Business Intelligence tool, similar to PowerBi, Looker, Tableau etc. It's like all the other ones, but free!
 
-Install using command prompt using instruction from docker:
+(Yes, some of the others can be used for free as well, in varying capacities).
+
+This tools allows us to do analytics on data. It can create dashboards with interactive graphs, allowing the creation of intuitive high and low level views of the underlying data.
+
+Install using the command prompt as follows:
+
+`docker run -d -p 8080:8088 -e "SUPERSET_SECRET_KEY=your_secret_key_here" --name superset apache/superset`
+
+your_secret_key_here can be replaced with anything you like. Just make sure to write it down somewhere. Security isn't our focus here, but a secret key is required for Superset to work.
+
+
+`docker exec -it superset superset fab create-admin`
+
+We use this to create an account that can access Superset.
+
+`docker exec -it superset superset db upgrade`
+
+Admitedly, I don't know what this does.
+
+`docker exec -it superset superset load_examples`
+
+This just loads example data and dashboards, and can be skipped if desired.
+
+`docker exec -it superset superset init`
+
+Finally, we can get up other roles beside the admin account. I am not sure if this is needed either, but it doesn't hurt.
+
+Navigate to [http://localhost:8080/login/](http://localhost:8080/login/) to see Superset in action.
 
 # Connecting Google Sheets to MySQL
 
-(google sheet to airbyte with dbt to mysql to superset run on docker)
-This hellscape [https://docs.airbyte.com/integrations/sources/google-sheets/](https://docs.airbyte.com/integrations/sources/google-sheets/)
+Phew. Now that everything is installed, in a timely and simple manner where absolutely nothing can go wrong. . . we can begin.
 
-Setup Airbyte
+What we are about to do, in a sentence, is:
 
-Setup dbt
+Connect a Google Sheets document to our MySQL database using Airbyte with dbt doing some transformations which we will then connect to Superset for analysis, almost all run on Docker.
 
-Setup SQL
+(image explination_1)
 
-Setup Superset
+### The Data:
+
+First, we need some data. (stuff about alchemy, save to own account, etc, etc)
+
+To do this, follow the instructions here: 
+
+[https://docs.airbyte.com/integrations/sources/google-sheets/](https://docs.airbyte.com/integrations/sources/google-sheets/)
+
+They look hellish but, if you can accept some (most) of it not making much sense, it actually works smoothly.
+
+### Setup Airbyte:
+
+Start up Airbyte in docker. Then navigate to ()[] and (source, destination)
+
+### Setup dbt:
+
+init commands, SQL script. Python script for own use. add to airbyte
+
+### Setup SQL
+
+create database schema and account.
+
+### Setup Superset
+
+connect to the data. Will cover in next project.
 
 # To the analysis and beyond!
 
@@ -157,6 +211,10 @@ And that's that. Easy...
 
 None of these steps are particularly hard individually, but there are many, and each brings a chance for something to go wrong. However, if all goes according to plan, you should now have a working data pipeline that brings data from a Source to a Destination, and Transforms it in the database, ready to get analysed.
 
-Next time, we will do the actual analysis, which may require a lot more SQL as well as the scope of what problem(s) we are trying to solve. And a (less than) fancy dashboard in SuperSet.
+This literally is the beginning. Basic infrastructure that can be expanded upon in enourmous ways, from security, sources, and destinations, to the cloud, schedualing, and beyond.
+
+But, enough for now.
+
+Next time, we will do the actual analysis, which may require some more SQL as well as the scope of what problem(s) we are trying to solve. And a (less than) fancy dashboard in SuperSet.
 
 I hope to see you then.
