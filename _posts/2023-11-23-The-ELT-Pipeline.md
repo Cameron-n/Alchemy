@@ -86,13 +86,13 @@ Docker allows programs to be run in a container. Containers contains all the nec
 
 Install docker desktop at [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
 
-We also need to activate WSL. Navigate to (...) and press (...).
+We also need to activate WSL. Navigate to Settings -> Resources -> WSL Integration and enable Ubuntu (or you chosen distribution).
 
 (picture docker_1)
 
 ## MySQL
 
-MySQL is a version of SQL, a language even more ubiquitous than Python in data science. It is a database language for relational databases (basically, data in a table). SQL and Python are the backbone of data Transformations.
+MySQL is a version of SQL, a language even more ubiquitous than Python in data science. It is a database language for relational databases (basically, data in tables). SQL and Python are the backbone of data Transformations.
 
 Install with Docker by using the search bar at the top.
 
@@ -181,7 +181,7 @@ Connect a Google Sheets document to our MySQL database using Airbyte with dbt do
 
 ### The Data:
 
-First, we need some data. (stuff about alchemy, save to own account, etc, etc)
+First, we need some data. I will be using (this)[https://docs.google.com/spreadsheets/d/1JQ391ET9lkKRoAdzQnkyIly7XCg2fNmtJqhpqmJitaM/edit#gid=1565250262] Google Sheet. It's a list of ingredients and their effects from (Morrowind)[https://en.wikipedia.org/wiki/The_Elder_Scrolls_III:_Morrowind].
 
 To do this, follow the instructions here: 
 
