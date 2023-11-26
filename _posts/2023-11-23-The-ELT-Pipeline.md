@@ -181,29 +181,67 @@ Connect a Google Sheets document to our MySQL database using Airbyte with dbt do
 
 ### The Data:
 
-First, we need some data. I will be using (this)[https://docs.google.com/spreadsheets/d/1JQ391ET9lkKRoAdzQnkyIly7XCg2fNmtJqhpqmJitaM/edit#gid=1565250262] Google Sheet. It's a list of ingredients and their effects from (Morrowind)[https://en.wikipedia.org/wiki/The_Elder_Scrolls_III:_Morrowind].
+First, we need some data. I will be using [this](https://docs.google.com/spreadsheets/d/1JQ391ET9lkKRoAdzQnkyIly7XCg2fNmtJqhpqmJitaM/edit#gid=1565250262) Google Sheet. It's a list of ingredients and their effects from (Morrowind)[https://en.wikipedia.org/wiki/The_Elder_Scrolls_III:_Morrowind]. I suggest taking a took at the data to get an idea of what it's like. 
 
-To do this, follow the instructions here: 
+Since we only need the first tab, and Airbyte seems to not like the second tab, I copied the first tab of the Google Sheet to a version on my own account.
+
+Next, we'll need to set up access in Googles API. To do this, follow the instructions here: 
 
 [https://docs.airbyte.com/integrations/sources/google-sheets/](https://docs.airbyte.com/integrations/sources/google-sheets/)
 
-They look hellish but, if you can accept some (most) of it not making much sense, it actually works smoothly.
+They look hellish but it should go smoothly.
 
 ### Setup Airbyte:
 
-Start up Airbyte in docker. Then navigate to ()[] and (source, destination)
+Start up Airbyte in Docker. Then navigate to ()[] and (source, destination).
+
+The information we need for the source is:
+
+The information we need for the destination is:
 
 ### Setup dbt:
 
-init commands, SQL script. Python script for own use. add to airbyte
+Navigate to the folder you want to save your dbt folders to. Then, from the command prompt, type:
+
+`dbt init <project_name>`
+`cd <project_name>`
+
+some seomthing yaml file.
+
+We can then setup the connection to the local database.
+
+open profiles.yml and replace the content with the following:
+
+Use dbt debug to check the connection.
+
+dbt run.
+
+```
+git init
+git branch -M main
+git add .
+git commit -m "Create a dbt project"
+git remote add origin https://github.com/USERNAME/<project_name>.git
+git push -u origin main
+```
+
+You can delete the `models/example/` directory.
+
+We are going to use the following SQL script:
+
+And the following Python script:
+
+We can now go briefly back to Airbyte to add a transformation by navigating to . . . and entering these values:
 
 ### Setup SQL
 
-create database schema and account.
+Start SQL in Docker and type the following in the command prompt.
+
+`i have no idea what i'm doing`
 
 ### Setup Superset
 
-connect to the data. Will cover in next project.
+Start Superset in Docker. Navigate to balh and press blah to connect data.
 
 # To the analysis and beyond!
 
