@@ -5,6 +5,9 @@ layout: post
 
 ## Introduction
 ---
+
+(pretty intro picture)
+
 * The E stand for Extraction,
 * The L stands for Load,
 * The T stands for Transform.
@@ -50,7 +53,7 @@ Go to [https://www.anaconda.com/download/](https://www.anaconda.com/download/) t
 Once installed, create a new Python environment with version 3.9.18 *.
 We can then install Spyder, as well as the command prompt (cmd). I don't think this is strictly needed, but it makes using the cmd easier. Otherwise, we would have to activate the Python environment from the cmd each time.
 
-`*` I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Check the required version of Python (probably latest) if you want to try PostgresSQL or another supported database.
+*I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Check the required version of Python (probably latest) if you want to try PostgresSQL or another supported database.
 
 ## Git/Github
 
@@ -116,6 +119,8 @@ cd airbyte
 bash run-ab-platform.sh
 ```
 
+(image of airbyte_1)
+
 Go to [http://localhost:8000](http://localhost:8000) to see it up and running. The default credentials are:
 
 username: airbyte
@@ -169,6 +174,8 @@ Finally, we can get up other roles beside the admin account. I am not sure if th
 
 Navigate to [http://localhost:8080/login/](http://localhost:8080/login/) to see Superset in action.
 
+(superset_1)
+
 # Connecting Google Sheets to MySQL
 
 Phew. Now that everything is installed, in a timely and simple manner where absolutely nothing can go wrong. . . we can begin.
@@ -181,7 +188,9 @@ Connect a Google Sheets document to our MySQL database using Airbyte with dbt do
 
 ### The Data:
 
-First, we need some data. I will be using [this](https://docs.google.com/spreadsheets/d/1JQ391ET9lkKRoAdzQnkyIly7XCg2fNmtJqhpqmJitaM/edit#gid=1565250262) Google Sheet. It's a list of ingredients and their effects from (Morrowind)[https://en.wikipedia.org/wiki/The_Elder_Scrolls_III:_Morrowind]. I suggest taking a took at the data to get an idea of what it's like. 
+First, we need some data. I will be using [this](https://docs.google.com/spreadsheets/d/1JQ391ET9lkKRoAdzQnkyIly7XCg2fNmtJqhpqmJitaM/edit#gid=1565250262) Google Sheet. It's a list of ingredients and their effects from (Morrowind)[https://en.wikipedia.org/wiki/The_Elder_Scrolls_III:_Morrowind]. I suggest taking a took at the data to get an idea of what it's like. Here's a screenshot:
+
+(google sheet screenshot)
 
 Since we only need the first tab, and Airbyte seems to not like the second tab, I copied the first tab of the Google Sheet to a version on my own account.
 
@@ -192,6 +201,8 @@ Next, we'll need to set up access in Googles API. To do this, follow the instruc
 They look hellish but it should go smoothly.
 
 ### Setup Airbyte:
+
+(airbyte source,destination,tranform,complete?)
 
 Start up Airbyte in Docker. Then navigate to ()[] and (source, destination).
 
@@ -216,6 +227,8 @@ Use dbt debug to check the connection.
 
 dbt run.
 
+(check of folders)
+
 ```
 git init
 git branch -M main
@@ -227,6 +240,8 @@ git push -u origin main
 
 You can delete the `models/example/` directory.
 
+(check of git)
+
 We are going to use the following SQL script:
 
 And the following Python script:
@@ -235,15 +250,23 @@ We can now go briefly back to Airbyte to add a transformation by navigating to .
 
 ### Setup SQL
 
+(some sql pics?)
+
 Start SQL in Docker and type the following in the command prompt.
 
-`i have no idea what i'm doing`
+`docker run --name <container-name> -e -p 3306:3306 MYSQL_ROOT_PASSWORD=<password> -d mysql:latest`
+
+Write down <password> as you will need it to  access the database. The username is 'root'. 
 
 ### Setup Superset
+
+(more superset pics? Instructions to connect database)
 
 Start Superset in Docker. Navigate to balh and press blah to connect data.
 
 # To the analysis and beyond!
+
+(ending pic?)
 
 And that's that. Easy...
 
