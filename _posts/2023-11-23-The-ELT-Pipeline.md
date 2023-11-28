@@ -3,7 +3,7 @@ title: "The ELT Pipeline"
 layout: post
 ---
 
-![Title]({{ site.url }}/assets/ELT_1.png)
+![](/assets/ELT1.jpg)
 
 ## Introduction
 ---
