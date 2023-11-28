@@ -41,11 +41,15 @@ This is a list of all the programs we will need to install. We will need a fair 
 
 Anacondas, and Pythons, and Spyders. Who knew programmers had a sense of humour?
 
-Python is a general purpose programming language that is used in Data Science for complex transformations of data. 
+#### What they are:
 
-Anaconda manages seperate Python environments so you can run multiple projects with different requirements (like python versions). Though we don't 'technically' need Anaconda, it comes with a selection of programs, like Python itself, that makes installation extremely easy. 
+* Python is a general purpose programming language that is used in Data Science for complex transformations of data. 
 
-Spyder is an editor for Python and is where we will be actually writing code. It also comes with Anaconda.
+* Anaconda manages seperate Python environments so you can run multiple projects with different requirements (like python versions). Though we don't 'technically' need Anaconda, it comes with a selection of programs, like Python itself, that makes installation extremely easy. 
+
+* Spyder is an editor for Python and is where we will be actually writing code. It also comes with Anaconda.
+
+#### Installation:
 
 Go to [https://www.anaconda.com/download/](https://www.anaconda.com/download/) to download anaconda, which includes anaconda navigator, a GUI.
 
@@ -57,9 +61,13 @@ We can then install Spyder, as well as the command prompt (cmd). I don't think t
 
 ### Git/Github
 
-Git is a tool that tracks changes to software, allowing you to roll-back changes, create multiple copies of software, and log why changes were made, among other things.
+#### What they are:
 
-Github uses git and is a way to host repositories of code, for instance for collaboration, and is required for Airbyte to run SQL and Python files using dbt. You may also notice this webpage is running on github! 
+* Git is a tool that tracks changes to software, allowing you to roll-back changes, create multiple copies of software, and log why changes were made, among other things.
+
+* Github uses git and is a way to host repositories of code, for instance for collaboration, and is required for Airbyte to run SQL and Python files using dbt. You may also notice this webpage is running on github! 
+
+#### Installation:
 
 Install git at [https://git-scm.com/downloads](https://git-scm.com/downloads).
 
@@ -67,9 +75,13 @@ You will also need to setup an account for Github at [https://github.com/](https
 
 ### WSL 2, Linux, and Docker Desktop
 
-Windows Service for Linux (WSL) is a . . . windows service . . . for Linux.
+#### What they are:
 
-Although not *for* Linux, in that sense. It is a virtual machine that allows Linux to run on Windows operating systems.
+* Windows Service for Linux (WSL) is a . . . windows service . . . for Linux. Although not *for* Linux, in that sense. It is a virtual machine that allows Linux to run on Windows operating systems.
+
+* Docker allows programs to be run in a container. Containers contains all the neccessary parts to run the programs and are lightweight compared to virtual machines. One advantage is that software can be shared between systems since the container has everything it needs to run, stand-alone. Another advantage is that it is required by several of the programs we are going to use, which sort of forces our hand.
+
+#### Installation:
 
 Install WSL using the command prompt:
 
@@ -81,27 +93,33 @@ We can then list the available distributions of Linux and select one. I chose Ub
 
 `wsl --install -d <Distribution>`
 
-Docker allows programs to be run in a container. Containers contains all the neccessary parts to run the programs and are lightweight compared to virtual machines. One advantage is that software can be shared between systems since the container has everything it needs to run, stand-alone. Another advantage is that it is required by several of the programs we are going to use, which sort of forces our hand.
-
 Install docker desktop at [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
 
 Once installed, we also need to activate WSL in Docker. Navigate to *Settings* -> *Resources* -> *WSL Integration* and enable Ubuntu (or your chosen distribution).
 
 ### SQL/MySQL
 
-SQL is a language even more ubiquitous than Python in data science. It is a database language for relational databases (basically, data in tables). SQL and Python are the backbone of data Transformations, with SQL more limited than Python but faster and easier to use for common transformations and general database tasks.
+#### What they are:
 
-MySQL is both a version of SQL and a database.
+* SQL is a language even more ubiquitous than Python in data science. It is a database language for relational databases (basically, data in tables). SQL and Python are the backbone of data Transformations, with SQL more limited than Python but faster and easier to use for common transformations and general database tasks.
+
+* MySQL is both a version of SQL and a database.
+
+#### Installation:
 
 Install with Docker by using typing 'MySQL' in the search bar at the top, and click Pull.
 
 Another 'technically' optional program is MySQL Workshop, a GUI to make SQL statements and monitor databases. You don't need it, but it's nice to have.
 
-install MySQL Workbench at [https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
+Install MySQL Workbench at [https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
 
 ### Airbyte
 
+#### What it is:
+
 Airbyte is the EL of ELT. It can take data from a Source (Like Google Sheets) to a Destination (Like our MySQL database).
+
+#### Installation:
 
 Install using the command prompt (Docker may need to be running).
 
@@ -121,11 +139,15 @@ password: password
 
 ### *dbt
 
+#### What it is:
+
 Data Build Tool, the T of ELT. It allows SQL scripts to be run with ease, performing data transformations with simple SELECT statements. Airbyte uses it behind the scenes and we can use it in our transformations by reading files hosted from a Github repository. Python scripts can also be used as of dbt-core version 1.3.  
 
 Now, unfortunately, dbt-mysql (the adaptor to make dbt work with MySQL) requires an older version of dbt-core and so we cannot use Python scripts from Airbyte. If I were to redo this (and if you want to have a go) I would use PostgresSQL instead. Furthermore, the SQL script I want to use must be run *after* the Python script. So, we actually can't use dbt at all.
 
 Nevertheless, dbt is an extremely useful tool and we can still learn to use it and demonstrate its integration with Airbyte and Github. If I redo this project with PostgresSQL, I will update this section.
+
+#### Installation:
 
 Install using the command prompt from Anaconda. This will be installed locally, then we will have our files uploaded to Github for Airbyte to use.
 
@@ -137,11 +159,15 @@ We also need to install a version on docker for Airbyte to use.
 
 ### SuperSet
 
+#### What it is:
+
 A Business Intelligence tool, similar to PowerBi, Looker, Tableau etc. It's like all the other ones, but free!
 
 (Yes, some of the others can be used for free as well, in varying capacities).
 
 This tools allows us to do analytics on data. It can create dashboards with interactive graphs, allowing the creation of intuitive high and low level views of the underlying data.
+
+#### Installation:
 
 Install using the command prompt as follows:
 
@@ -166,7 +192,6 @@ This just loads example data and dashboards, and can be skipped if desired.
 Finally, we can get up other roles beside the admin account. I am not sure if this is needed either, but it doesn't hurt.
 
 Navigate to [http://localhost:8080/login/](http://localhost:8080/login/) to see Superset in action.
-
 
 ## Part 2: Connecting Google Sheets to MySQL
 ---
@@ -208,6 +233,7 @@ We can then create and test our connection by going to the connections tab and..
 Navigate to the folder you want to save your dbt folders to. Then, from the command prompt in Anaconda, type:
 
 `dbt init <project_name>`
+
 `cd <project_name>`
 
 In the file `profiles.yml` located in `.dbt` replace the contents with:
@@ -346,13 +372,13 @@ git init
 git branch -M main
 git add .
 git commit -m "Create a dbt project"
-git remote add origin https://github.com/USERNAME/<project_name>.git
+git remote add origin https://github.com/USERNAME/project_name.git
 git push -u origin main
 ```
 
 Replace _USERNAME_ with your username.
 
-_<project_name>_ with your repositories name.
+_project_name_ with your repositories name.
 
 You can delete the `models/example/` directory. Note that `dbt run` will run all files and so will run the example scripts if they are not either deleted or explicitly specified not to run.
 
