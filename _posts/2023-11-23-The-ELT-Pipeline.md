@@ -8,6 +8,10 @@ layout: post
 ## Introduction
 ---
 
+![image](/assets/ELT1.jpg)
+
+![hi](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/ELT1.jpg)
+
 * #### The E stand for Extraction,
 * #### The L stands for Load,
 * #### The T stands for Transform.
