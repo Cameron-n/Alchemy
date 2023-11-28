@@ -3,11 +3,12 @@ title: "The ELT Pipeline"
 layout: post
 ---
 
-# Introduction
+## Introduction
+---
 
-### * The E stand for Extraction,
-### * The L stands for Load,
-### * The T stands for Transform.
+* #### The E stand for Extraction,
+* #### The L stands for Load,
+* #### The T stands for Transform.
 
 So it looks like we only need, at most, three programs to get our data pipeline going, right? 
 
@@ -17,7 +18,8 @@ Welcome to my project on setting up a simple data pipeline using entirely open-s
 
 The purpose of this project is partially to demonstrate my knowledge of Data Engineering, and partially as a resource for when I, inevitably, forget much of this! It is overkill for what is essentially moving a Google Sheets document into a database, once, but the principles used here can be scaled up to massive amounts of data continuously extracted with complex transformations using multiple sources and destinations.
 
-# Part 1: Installation
+## Part 1: Installation
+---
 
 This is a list of all the programs we will need to install. We will need a fair amount of space, approximately 30 GBs but it would be wise to have at least 40 to 50 GBs. This is also intended for Windows 10 (11 probably works too).
 
@@ -35,7 +37,7 @@ This is a list of all the programs we will need to install. We will need a fair 
 | SuperSet         | BI tool                   | part of docker  |
 | Total            |                           | ~30 GB          |
 
-## Anaconda, Python, and Spyder (and cmd)
+### Anaconda, Python, and Spyder (and cmd)
 
 Anacondas, and Pythons, and Spyders. Who knew programmers had a sense of humour?
 
@@ -53,7 +55,7 @@ We can then install Spyder, as well as the command prompt (cmd). I don't think t
 
 *_I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Check the required version of Python (probably latest) if you want to try PostgresSQL or another supported database._
 
-## Git/Github
+### Git/Github
 
 Git is a tool that tracks changes to software, allowing you to roll-back changes, create multiple copies of software, and log why changes were made, among other things.
 
@@ -63,7 +65,7 @@ Install git at [https://git-scm.com/downloads](https://git-scm.com/downloads).
 
 You will also need to setup an account for Github at [https://github.com/](https://github.com/) if you don't have one.
 
-## WSL 2, Linux, and Docker Desktop
+### WSL 2, Linux, and Docker Desktop
 
 Windows Service for Linux (WSL) is a . . . windows service . . . for Linux.
 
@@ -85,7 +87,7 @@ Install docker desktop at [https://www.docker.com/products/docker-desktop/](http
 
 Once installed, we also need to activate WSL in Docker. Navigate to *Settings* -> *Resources* -> *WSL Integration* and enable Ubuntu (or your chosen distribution).
 
-## SQL/MySQL
+### SQL/MySQL
 
 SQL is a language even more ubiquitous than Python in data science. It is a database language for relational databases (basically, data in tables). SQL and Python are the backbone of data Transformations, with SQL more limited than Python but faster and easier to use for common transformations and general database tasks.
 
@@ -97,7 +99,7 @@ Another 'technically' optional program is MySQL Workshop, a GUI to make SQL stat
 
 install MySQL Workbench at [https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
 
-## Airbyte
+### Airbyte
 
 Airbyte is the EL of ELT. It can take data from a Source (Like Google Sheets) to a Destination (Like our MySQL database).
 
@@ -117,15 +119,15 @@ username: airbyte
 
 password: password
 
-## dbt
+### *dbt
 
 Data Build Tool, the T of ELT. It allows SQL scripts to be run with ease, performing data transformations with simple SELECT statements. Airbyte uses it behind the scenes and we can use it in our transformations by reading files hosted from a Github repository. Python scripts can also be used as of dbt-core version 1.3.  
 
-*Now, unfortunately, dbt-mysql (the adaptor to make dbt work with MySQL) requires an older version of dbt-core and so we cannot use Python scripts from Airbyte. If I were to redo this (and if you want to have a go) I would use PostgresSQL instead. Furthermore, the SQL script I want to use must be run *after* the Python script. So, we actually can't use dbt at all.
+Now, unfortunately, dbt-mysql (the adaptor to make dbt work with MySQL) requires an older version of dbt-core and so we cannot use Python scripts from Airbyte. If I were to redo this (and if you want to have a go) I would use PostgresSQL instead. Furthermore, the SQL script I want to use must be run *after* the Python script. So, we actually can't use dbt at all.
 
 Nevertheless, dbt is an extremely useful tool and we can still learn to use it and demonstrate its integration with Airbyte and Github. If I redo this project with PostgresSQL, I will update this section.
 
-Install using command prompt with Python. This will be installed locally, then we will have our files uploaded to Github for Airbyte to use.
+Install using the command prompt from Anaconda. This will be installed locally, then we will have our files uploaded to Github for Airbyte to use.
 
 `python -m pip install dbt-mysql`
 
@@ -133,7 +135,7 @@ We also need to install a version on docker for Airbyte to use.
 
 `docker pull ghcr.io/dbeatty10/dbt-mysql`
 
-## SuperSet
+### SuperSet
 
 A Business Intelligence tool, similar to PowerBi, Looker, Tableau etc. It's like all the other ones, but free!
 
@@ -166,17 +168,18 @@ Finally, we can get up other roles beside the admin account. I am not sure if th
 Navigate to [http://localhost:8080/login/](http://localhost:8080/login/) to see Superset in action.
 
 
-# Part 2: Connecting Google Sheets to MySQL
+## Part 2: Connecting Google Sheets to MySQL
+---
 
 Phew. Now that everything is installed, we can begin transporting some data.
 
 What we are about to do, in a sentence, is:
 
-Connect a Google Sheets document to our MySQL database using Airbyte, with dbt doing some transformations, which we will then connect to Superset for analysis, almost all run on Docker.
+_Connect a Google Sheets document to our MySQL database using Airbyte, with dbt doing some transformations, which we will then connect to Superset for analysis, almost all run on Docker._
 
-## The Data:
+### The Data:
 
-First, we need some data. I will be using [this](https://docs.google.com/spreadsheets/d/1JQ391ET9lkKRoAdzQnkyIly7XCg2fNmtJqhpqmJitaM/edit#gid=1565250262) Google Sheet. It's a list of ingredients and their effects from (Morrowind)[https://en.wikipedia.org/wiki/The_Elder_Scrolls_III:_Morrowind]. I suggest taking a took at the data to get an idea of what it's like. Here's a screenshot:
+First, we need some data. I will be using [this](https://docs.google.com/spreadsheets/d/1JQ391ET9lkKRoAdzQnkyIly7XCg2fNmtJqhpqmJitaM/edit#gid=1565250262) Google Sheet. It's a list of ingredients and their effects from [Morrowind](https://en.wikipedia.org/wiki/The_Elder_Scrolls_III:_Morrowind). I suggest taking a took at the data to get an idea of what it's like. Here's a screenshot:
 
 (google sheet screenshot)
 
@@ -186,36 +189,157 @@ Next, we'll need to set up access in Googles API. To do this, follow the instruc
 
 [https://docs.airbyte.com/integrations/sources/google-sheets/](https://docs.airbyte.com/integrations/sources/google-sheets/)
 
-They look hellish but it should go smoothly.
-
-## Setup Airbyte:
+### Setup Airbyte:
 
 (airbyte source,destination,tranform,complete?)
 
-Start up Airbyte in Docker. Then navigate to ()[] and (source, destination).
+Start up Airbyte in Docker. Then navigate to the Source tab and search for Google Sheets.
 
 The information we need for the source is:
 
+Now, go to the destination tab and search for MySQL.
+
 The information we need for the destination is:
 
-## Setup dbt:
+We can then create and test our connection by going to the connections tab and...
 
-Navigate to the folder you want to save your dbt folders to. Then, from the command prompt, type:
+### Setup dbt:
+
+Navigate to the folder you want to save your dbt folders to. Then, from the command prompt in Anaconda, type:
 
 `dbt init <project_name>`
 `cd <project_name>`
 
-some seomthing yaml file.
+In the file `profiles.yml` located in `.dbt` replace the contents with:
 
-We can then setup the connection to the local database.
+```yaml
+your_profile_name:
+  target: dev
+  outputs:
+    dev:
+      type: mysql
+      server: localhost
+      port: 3306
+      schema: schema_name
+      username: your_mysql_username
+      password: your_mysql_password
+      ssl_disabled: True
+```
 
-open profiles.yml and replace the content with the following:
+Replace  _your_profile_name_ with the name of your dbt folder.
 
-Use dbt debug to check the connection.
+_schema_name_ with the name of your database.
 
-dbt run.
+_your_mysql_username_ with your MySQL username (root if using the default admin account).
 
-(check of folders)
+_your_mysql_password_ with your MySQL password.
+
+Use 
+
+`dbt debug` 
+
+to check the connection.
+
+We are going to use the following SQL script:
+
+```sql
+create table potion_pairs as
+select t1.ingredients as t1ing,t2.ingredients as t2ing,
+t1.`effect 1` as t1e1, t1.`effect 2` as t1e2, t1.`effect 3` as t1e3, t1.`effect 4` as t1e4,
+t2.`effect 1` as t2e1, t2.`effect 2` as t2e2, t2.`effect 3` as t2e3, t2.`effect 4` as t2e4,
+(
+   (t1.`effect 1` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 1` != '')
++ (t1.`effect 2` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 2` != '')
++ (t1.`effect 3` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 3` != '')
++ (t1.`effect 4` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 4` != '')
+) as number_of_effects
+from -- Probably works
+(
+ingredients_final t1, ingredients_final t2
+)
+where t1.ingredients < t2.ingredients
+and (
+   t1.`effect 1` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 1` != ''
+or t1.`effect 2` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 2` != ''
+or t1.`effect 3` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 3` != ''
+or t1.`effect 4` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 4` != ''
+) 
+```
+
+And the following Python script (might need to install sqlalchemy and pymysql libraries):
+
+```python
+# MySQL python transformation for superset analysis
+
+from sqlalchemy import create_engine
+
+import pymysql
+
+import pandas as pd
+
+ 
+#setup connection
+sqlEngine       = create_engine('mysql+pymysql://root:EverStrutParty@127.0.0.1:4000/alchemy', pool_recycle=3600)
+dbConnection    = sqlEngine.connect()
+
+#create frame
+frame           = pd.read_sql("select * from alchemy.ingredients", dbConnection);
+
+#dunno
+pd.set_option('display.expand_frame_repr', False)
+
+#remove unneeded columns
+frame.drop('value', axis=1, inplace=True)
+frame.drop('weight', axis=1, inplace=True)
+frame.drop('_airbyte_ab_id', axis=1, inplace=True)
+frame.drop('_airbyte_emitted_at', axis=1, inplace=True)
+frame.drop('_airbyte_normalized_at', axis=1, inplace=True)
+frame.drop('_airbyte_ingredients_hashid', axis=1, inplace=True)
+
+#replace None with 0 and 'x' with 1.
+frame = frame.replace([None,'x'],[0,1])
+
+#create new reshaped dataframe for output
+final_frame=pd.DataFrame(columns=['ingredients','effect 1','effect 2','effect 3','effect 4'])
+
+#add rows using logic magic stuff
+for row in range(len(frame.index)):
+    new_row = [frame['ingredient'][row]]
+    column_number = 0
+    for value in frame.iloc[row]:
+        if value == 1:
+            new_row.append(frame.columns[column_number])
+        column_number += 1
+    while len(new_row) < 5:
+        new_row.append("")
+    final_frame.loc[row] = new_row
+ 
+#sql magic to write new table       
+tableName = "ingredients_final" 
+
+try:
+
+    final_frame           = final_frame.to_sql(tableName, dbConnection, if_exists='fail');
+
+except ValueError as vx:
+
+    print(vx)
+
+except Exception as ex:   
+
+    print(ex)
+
+else:
+
+    print("Table %s created successfully."%tableName);   
+
+finally:
+
+    dbConnection.close()
+
+```
+
+We can now submit our dbt folder to Github as follows.
 
 ```
 git init
@@ -226,19 +350,15 @@ git remote add origin https://github.com/USERNAME/<project_name>.git
 git push -u origin main
 ```
 
-You can delete the `models/example/` directory.
+Replace _USERNAME_ with your username.
 
-(check of git)
+_<project_name>_ with your repositories name.
 
-We are going to use the following SQL script:
+You can delete the `models/example/` directory. Note that `dbt run` will run all files and so will run the example scripts if they are not either deleted or explicitly specified not to run.
 
-And the following Python script:
+We can now go briefly back to Airbyte to add a transformation by navigating to our connection, pressing transformation, and entering these values:
 
-We can now go briefly back to Airbyte to add a transformation by navigating to . . . and entering these values:
-
-## Setup SQL
-
-(some sql pics?)
+### Setup SQL
 
 Start SQL in Docker and type the following in the command prompt.
 
@@ -246,11 +366,9 @@ Start SQL in Docker and type the following in the command prompt.
 
 Write down <password> as you will need it to  access the database. The username is 'root'. 
 
-## Setup Superset
+### Setup Superset
 
-(more superset pics? Instructions to connect database)
-
-Start Superset in Docker. Navigate to balh and press blah to connect data.
+Start Superset in Docker. Navigate to datasets and press blah to connect data.
 
 ## To the analysis and beyond!
 
