@@ -119,7 +119,7 @@ Once installed, we also need to activate WSL in Docker. Navigate to *Settings* -
 
 #### Installation:
 
-Install with Docker by using typing 'MySQL' in the search bar at the top, and click Pull.
+Install with Docker by typing 'MySQL' in the search bar at the top, and click Pull.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/MySQL_1.png)
 
@@ -225,11 +225,12 @@ What we are about to do, in a sentence, is:
 
 _Connect a Google Sheets document to our MySQL database using Airbyte, with dbt doing some transformations, which we will then connect to Superset for analysis, almost all run on Docker._
 
-* ### The Data:
+### The Data:
+---
 
 First, we need some data. I will be using [this](https://docs.google.com/spreadsheets/d/1JQ391ET9lkKRoAdzQnkyIly7XCg2fNmtJqhpqmJitaM/edit#gid=1565250262) Google Sheet. It's a list of ingredients and their effects from [Morrowind](https://en.wikipedia.org/wiki/The_Elder_Scrolls_III:_Morrowind). I suggest taking a took at the data to get an idea of what it's like. Here's a screenshot:
 
-(google sheet screenshot)
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/data_dark.png)
 
 Since we only need the first tab, and Airbyte seems to not like the second tab, I copied the first tab of the Google Sheet to a version on my own account.
 
@@ -238,17 +239,23 @@ Next, we'll need to set up access in Googles API. To do this, follow the instruc
 [https://docs.airbyte.com/integrations/sources/google-sheets/](https://docs.airbyte.com/integrations/sources/google-sheets/)
 
 
-* ### Setup Airbyte:
+### Setup Airbyte:
 
-(airbyte source,destination,tranform,complete?)
+Start up Airbyte in Docker and connect to it at [http://localhost:8000](http://localhost:8000). Then navigate to the Source tab and search for Google Sheets.
 
-Start up Airbyte in Docker. Then navigate to the Source tab and search for Google Sheets.
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Airbyte_2.png)
 
 The information we need for the source is:
 
+
+
 Now, go to the destination tab and search for MySQL.
 
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Airbyte_3.png)
+
 The information we need for the destination is:
+
+
 
 We can then create and test our connection by going to the connections tab and...
 
