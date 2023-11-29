@@ -312,13 +312,17 @@ your_profile_name:
       ssl_disabled: True
 ```
 
-Replace  _your_profile_name_ with the name of your dbt folder.
+This contains the information for a connection to the database.
 
-_schema_name_ with the name of your database.
+Replace:  
 
-_your_mysql_username_ with your MySQL username (root if using the default admin account).
+* _your_profile_name_ with the name of your dbt folder.
 
-_your_mysql_password_ with your MySQL password.
+* _schema_name_ with the name of your database.
+
+* _your_mysql_username_ with your MySQL username (root if using the default admin account).
+
+* _your_mysql_password_ with your MySQL password.
 
 Use 
 
@@ -326,7 +330,15 @@ Use
 
 to check the connection.
 
-We can now submit our dbt folder to Github as follows.
+You can create a simple SQL script in the models folder, like
+
+```SQL
+SELECT * FROM TABLE_NAME LIMIT 10
+```
+
+To see dbt in action. dbt will create a new table using SELECT statements.
+
+We can now submit our dbt folder to Github as follows (You'll first need to create a repository on Github).
 
 ```
 git init
@@ -341,50 +353,30 @@ Replace _USERNAME_ with your username.
 
 _project_name_ with your repositories name.
 
-You can delete the `models/example/` directory. Note that `dbt run` will run all files and so will run the example scripts if they are not either deleted or explicitly specified not to run.
+You can delete the `models/example/` directory. Note that `dbt run` will run all files and so will run the example scripts if they are not either deleted or specific models are specified/excluded.
 
 We can now go briefly back to Airbyte to add a transformation by navigating to our connection, pressing transformation, and entering these values:
 
-Transformation name: anything you like
+* _Transformation name_: anything you like
 
-Entrypoint arguments for dbt cli to run the project: run --models <name_of_script>
+* _Entrypoint arguments for dbt cli to run the project_: `run --models <name_of_model_script>`
 
-Docker image URL with dbt installed: URL of dbt-mysql adaptor from docker
+* _Docker image URL with dbt installed_: URL of dbt-mysql adaptor from docker e.g. ddb2d4049f9c
 
-Git repository URL of the custom transformation project: the git repo you saved the dbt files to
+* _Git repository URL of the custom transformation project_: the git repo you saved the dbt files to e.g. https://github.com/Cameron-n/alchemy-transform
+
+The transformation should create an extra table in addition to the raw data, so you dont _have_ to remove it, but it might be a good idea regardless.
+
+_Note, newer versions of dbt use `--select` instead of `--models`. We are intentionally using an older version due to using the dbt-mysql adaptor._
 
 ### Transformations:
 
-We are going to use the following SQL script:
+You'll need to install SQLalchemy and pymysql using `python -m pip install sqlalchemy` and `python -m pip install pymysql` from the command prompt in Anaconda. These are libraries used to connect to the database. It is by pure, entertaining, coincidence that Alchemy is the mixing of ingredients in Morrowind, and also the name of the SQL library. This will include using pandas which I will not explain in detail. 
 
-```sql
-create table potion_pairs as
-select t1.ingredients as t1ing,t2.ingredients as t2ing,
-t1.`effect 1` as t1e1, t1.`effect 2` as t1e2, t1.`effect 3` as t1e3, t1.`effect 4` as t1e4,
-t2.`effect 1` as t2e1, t2.`effect 2` as t2e2, t2.`effect 3` as t2e3, t2.`effect 4` as t2e4,
-(
-   (t1.`effect 1` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 1` != '')
-+ (t1.`effect 2` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 2` != '')
-+ (t1.`effect 3` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 3` != '')
-+ (t1.`effect 4` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 4` != '')
-) as number_of_effects
-from -- Probably works
-(
-ingredients_final t1, ingredients_final t2
-)
-where t1.ingredients < t2.ingredients
-and (
-   t1.`effect 1` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 1` != ''
-or t1.`effect 2` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 2` != ''
-or t1.`effect 3` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 3` != ''
-or t1.`effect 4` in (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) and t1.`effect 4` != ''
-) 
-```
-
-And the following Python script (might need to install sqlalchemy and pymysql libraries):
+We are going to use the following Python script:
 
 ```python
-# MySQL python transformation for superset analysis
+# MySQL python transformation
 
 from sqlalchemy import create_engine
 
@@ -393,17 +385,17 @@ import pymysql
 import pandas as pd
 
  
-#setup connection
-sqlEngine       = create_engine('mysql+pymysql://root:EverStrutParty@127.0.0.1:4000/alchemy', pool_recycle=3600)
+# Setup connection. CHANGE <database_password> TO YOUR PASSWORD
+sqlEngine       = create_engine('mysql+pymysql://root:<database_password>@127.0.0.1:3306/alchemy', pool_recycle=3600)
 dbConnection    = sqlEngine.connect()
 
-#create frame
-frame           = pd.read_sql("select * from alchemy.ingredients", dbConnection);
+# Create dataframe
+frame           = pd.read_sql("select * from <database_name>.<database_table>", dbConnection);
 
-#dunno
+# I don't know what this does
 pd.set_option('display.expand_frame_repr', False)
 
-#remove unneeded columns
+# Remove unneeded columns. We don't need 'value' or 'weight' or Airbyte's additional data.
 frame.drop('value', axis=1, inplace=True)
 frame.drop('weight', axis=1, inplace=True)
 frame.drop('_airbyte_ab_id', axis=1, inplace=True)
@@ -411,13 +403,16 @@ frame.drop('_airbyte_emitted_at', axis=1, inplace=True)
 frame.drop('_airbyte_normalized_at', axis=1, inplace=True)
 frame.drop('_airbyte_ingredients_hashid', axis=1, inplace=True)
 
-#replace None with 0 and 'x' with 1.
+# Replace None (blank spaces) with 0 and 'x' with 1. This allows us to do some maths
 frame = frame.replace([None,'x'],[0,1])
 
-#create new reshaped dataframe for output
+# Create new reshaped dataframe for output. We change the data's format to
+# Ingredients, effect 1, effect 2, effect 3, effect 4
+# This works as each ingredient has up to 4 effects
 final_frame=pd.DataFrame(columns=['ingredients','effect 1','effect 2','effect 3','effect 4'])
 
-#add rows using logic magic stuff
+# This creates each row of the table, searching each original row for 1's and
+# adding those effects
 for row in range(len(frame.index)):
     new_row = [frame['ingredient'][row]]
     column_number = 0
@@ -429,8 +424,8 @@ for row in range(len(frame.index)):
         new_row.append("")
     final_frame.loc[row] = new_row
  
-#sql magic to write new table       
-tableName = "ingredients_final" 
+# Name of new table to create      
+tableName = "<new_table_name>" 
 
 try:
 
@@ -453,6 +448,40 @@ finally:
     dbConnection.close()
 
 ```
+
+You can copy the above into Spyder and run it with the MySQL database running in Docker. Hopefully, you should see a new table created if you look in MySQL Workbench, or later in Superset.
+
+We now want to create a new table from the table we created using Python. We'll do this with SQL since it's a simpler transformation (a join). This script creates all possible pairs of ingredients where at least one effect matches, containing no duplicates, and where any single ingredient cannot combine with itself.
+
+_Note, in dbt we don't need the CREATE statement as dbt uses the SELECT statement to construct a new table_
+
+```sql
+CREATE TABLE ingredient_pairs AS
+SELECT t1.ingredients AS t1ing,t2.ingredients AS t2ing,
+t1.`effect 1` AS t1e1, t1.`effect 2` AS t1e2, t1.`effect 3` AS t1e3, t1.`effect 4` AS t1e4,
+t2.`effect 1` AS t2e1, t2.`effect 2` AS t2e2, t2.`effect 3` AS t2e3, t2.`effect 4` AS t2e4,
+(
+  (t1.`effect 1` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 1` != '')
++ (t1.`effect 2` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 2` != '')
++ (t1.`effect 3` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 3` != '')
++ (t1.`effect 4` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 4` != '')
+) AS number_of_effects
+FROM 
+(
+ingredients_final t1, ingredients_final t2
+)
+WHERE t1.ingredients < t2.ingredients
+AND (
+   t1.`effect 1` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 1` != ''
+or t1.`effect 2` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 2` != ''
+or t1.`effect 3` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 3` != ''
+or t1.`effect 4` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 4` != ''
+) 
+```
+
+You can run this from MySQL Workbench, using dbt, or the shell if you know how.
+
+We now have a dataset we can connect to Superset for analysis.
 
 ### Setup Superset
 
