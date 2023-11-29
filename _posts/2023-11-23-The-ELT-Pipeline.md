@@ -238,16 +238,29 @@ Next, we'll need to set up access in Googles API. To do this, follow the instruc
 
 [https://docs.airbyte.com/integrations/sources/google-sheets/](https://docs.airbyte.com/integrations/sources/google-sheets/)
 
+### Setup SQL
+
+Start SQL in Docker and type the following in the command prompt.
+
+`docker run --name <container-name> -e -p 3306:3306 MYSQL_ROOT_PASSWORD=<password> -d mysql:latest`
+
+Write down <password> as you will need it to access the database. The username is 'root'. 
 
 ### Setup Airbyte:
 
-Start up Airbyte in Docker and connect to it at [http://localhost:8000](http://localhost:8000). Then navigate to the Source tab and search for Google Sheets.
+Start up Airbyte in Docker and connect to it at [http://localhost:8000](http://localhost:8000).
+
+Navigate to the Source tab and search for Google Sheets.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Airbyte_2.png)
 
 The information we need for the source is:
 
+Source name: You can choose any name you like.
 
+Service Account Information: You will have gotten this from the Google API. It will be in JSON format.
+
+Spreadsheet Link: Click Share then Copy link in the spreadsheet to get this link.
 
 Now, go to the destination tab and search for MySQL.
 
@@ -255,12 +268,27 @@ Now, go to the destination tab and search for MySQL.
 
 The information we need for the destination is:
 
+Destination name: Any name you like
 
+Host: localhost
 
-We can then create and test our connection by going to the connections tab and...
+Port: 3306
 
+DB Name: Name of the database
 
-* ### Setup dbt:
+User: root
+
+In Optional fields,
+
+Password: your password from the MySQL setup
+
+We can now, finally, move the data. Go to the Connections tab, select the Source and Destination we set up, and press Sync now. With a bit of luck, Airbyte should populate your MySQL database with the data from Google Sheets!
+
+### Setup dbt:
+
+All that's left is to do some transformations, and connect our Analysis tool to the data. 
+
+However, first, let's setup dbt just to see how it works. You can skip this step for now, but as I said earlier, I will likely redo this project to integrate the Transformations into Airbyte using dbt.
 
 Navigate to the folder you want to save your dbt folders to. Then, from the command prompt in Anaconda, type:
 
@@ -297,6 +325,35 @@ Use
 `dbt debug` 
 
 to check the connection.
+
+We can now submit our dbt folder to Github as follows.
+
+```
+git init
+git branch -M main
+git add .
+git commit -m "Create a dbt project"
+git remote add origin https://github.com/USERNAME/project_name.git
+git push -u origin main
+```
+
+Replace _USERNAME_ with your username.
+
+_project_name_ with your repositories name.
+
+You can delete the `models/example/` directory. Note that `dbt run` will run all files and so will run the example scripts if they are not either deleted or explicitly specified not to run.
+
+We can now go briefly back to Airbyte to add a transformation by navigating to our connection, pressing transformation, and entering these values:
+
+Transformation name: anything you like
+
+Entrypoint arguments for dbt cli to run the project: run --models <name_of_script>
+
+Docker image URL with dbt installed: URL of dbt-mysql adaptor from docker
+
+Git repository URL of the custom transformation project: the git repo you saved the dbt files to
+
+### Transformations:
 
 We are going to use the following SQL script:
 
@@ -397,47 +454,21 @@ finally:
 
 ```
 
-We can now submit our dbt folder to Github as follows.
+### Setup Superset
 
-```
-git init
-git branch -M main
-git add .
-git commit -m "Create a dbt project"
-git remote add origin https://github.com/USERNAME/project_name.git
-git push -u origin main
-```
+Start Superset in Docker. Navigate to datasets and select the database, schema, and table.
 
-Replace _USERNAME_ with your username.
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_3.png)
 
-_project_name_ with your repositories name.
-
-You can delete the `models/example/` directory. Note that `dbt run` will run all files and so will run the example scripts if they are not either deleted or explicitly specified not to run.
-
-We can now go briefly back to Airbyte to add a transformation by navigating to our connection, pressing transformation, and entering these values:
-
-
-* ### Setup SQL
-
-Start SQL in Docker and type the following in the command prompt.
-
-`docker run --name <container-name> -e -p 3306:3306 MYSQL_ROOT_PASSWORD=<password> -d mysql:latest`
-
-Write down <password> as you will need it to  access the database. The username is 'root'. 
-
-
-* ### Setup Superset
-
-Start Superset in Docker. Navigate to datasets and press blah to connect data.
-
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_2.png)
 
 ## To the analysis and beyond!
 
 And that's that. Easy...
 
-None of these steps are particularly hard individually, but there are many, and each brings a chance for something to go wrong. However, if all goes according to plan, you should now have a working data pipeline that brings data from a Source to a Destination, and Transforms it in the Database, ready to get Analysed.
+If all went according to plan, you should now have a working data pipeline that brings data from a Source to a Destination, and Transforms it in the Database, ready to get Analysed.
 
-This literally is the beginning. It's basic infrastructure that can be expanded upon in enourmous ways, from security, sources, and destinations, to the cloud, schedualing, and beyond.
+This literally is the beginning. It's a basic infrastructure that can be expanded upon in enourmous ways, from security, sources, and destinations, to the cloud, schedualing, and beyond.
 
 But, enough for now.
 
