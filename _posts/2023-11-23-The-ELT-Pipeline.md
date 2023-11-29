@@ -39,8 +39,8 @@ This is a list of all the programs we will need to install. We will need a fair 
 | SuperSet         | BI tool                   | part of docker  |
 | Total            |                           | ~30 GB          |
 
-
-### * Anaconda, Python, and Spyder (and cmd)
+* ### Anaconda, Python, and Spyder (and cmd)
+---
 
 Anacondas, and Pythons, and Spyders. Who knew programmers had a sense of humour?
 
@@ -62,8 +62,8 @@ We can then install Spyder, as well as the command prompt (cmd). I don't think t
 
 *_I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Check the required version of Python (probably latest) if you want to try PostgresSQL or another supported database._
 
-
-### * Git/Github
+* ### Git/Github
+---
 
 #### What they are:
 
@@ -77,8 +77,8 @@ Install git at [https://git-scm.com/downloads](https://git-scm.com/downloads).
 
 You will also need to setup an account for Github at [https://github.com/](https://github.com/) if you don't have one.
 
-
-### * WSL 2, Linux, and Docker Desktop
+* ### WSL 2, Linux, and Docker Desktop
+---
 
 #### What they are:
 
@@ -102,8 +102,8 @@ Install docker desktop at [https://www.docker.com/products/docker-desktop/](http
 
 Once installed, we also need to activate WSL in Docker. Navigate to *Settings* -> *Resources* -> *WSL Integration* and enable Ubuntu (or your chosen distribution).
 
-
-### * SQL/MySQL
+* ### SQL/MySQL
+---
 
 #### What they are:
 
@@ -119,8 +119,8 @@ Another 'technically' optional program is MySQL Workshop, a GUI to make SQL stat
 
 Install MySQL Workbench at [https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
 
-
-### * Airbyte
+* ### Airbyte
+---
 
 #### What it is:
 
@@ -144,8 +144,8 @@ username: airbyte
 
 password: password
 
-
-### * *dbt
+* ### *dbt
+---
 
 #### What it is:
 
@@ -165,8 +165,8 @@ We also need to install a version on docker for Airbyte to use.
 
 `docker pull ghcr.io/dbeatty10/dbt-mysql`
 
-
-### * SuperSet
+* ### SuperSet
+---
 
 #### What it is:
 
@@ -212,8 +212,7 @@ What we are about to do, in a sentence, is:
 
 _Connect a Google Sheets document to our MySQL database using Airbyte, with dbt doing some transformations, which we will then connect to Superset for analysis, almost all run on Docker._
 
-
-### * The Data:
+* ### The Data:
 
 First, we need some data. I will be using [this](https://docs.google.com/spreadsheets/d/1JQ391ET9lkKRoAdzQnkyIly7XCg2fNmtJqhpqmJitaM/edit#gid=1565250262) Google Sheet. It's a list of ingredients and their effects from [Morrowind](https://en.wikipedia.org/wiki/The_Elder_Scrolls_III:_Morrowind). I suggest taking a took at the data to get an idea of what it's like. Here's a screenshot:
 
@@ -226,7 +225,7 @@ Next, we'll need to set up access in Googles API. To do this, follow the instruc
 [https://docs.airbyte.com/integrations/sources/google-sheets/](https://docs.airbyte.com/integrations/sources/google-sheets/)
 
 
-### * Setup Airbyte:
+* ### Setup Airbyte:
 
 (airbyte source,destination,tranform,complete?)
 
@@ -241,7 +240,7 @@ The information we need for the destination is:
 We can then create and test our connection by going to the connections tab and...
 
 
-### * Setup dbt:
+* ### Setup dbt:
 
 Navigate to the folder you want to save your dbt folders to. Then, from the command prompt in Anaconda, type:
 
@@ -398,7 +397,7 @@ You can delete the `models/example/` directory. Note that `dbt run` will run all
 We can now go briefly back to Airbyte to add a transformation by navigating to our connection, pressing transformation, and entering these values:
 
 
-### * Setup SQL
+* ### Setup SQL
 
 Start SQL in Docker and type the following in the command prompt.
 
@@ -407,7 +406,7 @@ Start SQL in Docker and type the following in the command prompt.
 Write down <password> as you will need it to  access the database. The username is 'root'. 
 
 
-### * Setup Superset
+* ### Setup Superset
 
 Start Superset in Docker. Navigate to datasets and press blah to connect data.
 
