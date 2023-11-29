@@ -39,7 +39,7 @@ This is a list of all the programs we will need to install. We will need a fair 
 | SuperSet         | BI tool                   | part of docker  |
 | Total            |                           | ~30 GB          |
 
-* ### Anaconda, Python, and Spyder (and cmd)
+### Anaconda, Python, and Spyder (and cmd)
 ---
 
 Anacondas, and Pythons, and Spyders. Who knew programmers had a sense of humour?
@@ -60,9 +60,11 @@ Once installed, create a new Python environment with version 3.9.18*.
 
 We can then install Spyder, as well as the command prompt (cmd). I don't think this is strictly needed, but it makes using the cmd easier. Otherwise, we would have to activate the Python environment from the cmd each time.
 
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Anaconda_1.jpg)
+
 *_I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Check the required version of Python (probably latest) if you want to try PostgresSQL or another supported database._
 
-* ### Git/Github
+### Git/Github
 ---
 
 #### What they are:
@@ -77,7 +79,9 @@ Install git at [https://git-scm.com/downloads](https://git-scm.com/downloads).
 
 You will also need to setup an account for Github at [https://github.com/](https://github.com/) if you don't have one.
 
-* ### WSL 2, Linux, and Docker Desktop
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Github_2.png)
+
+### WSL 2, Linux, and Docker Desktop
 ---
 
 #### What they are:
@@ -102,7 +106,9 @@ Install docker desktop at [https://www.docker.com/products/docker-desktop/](http
 
 Once installed, we also need to activate WSL in Docker. Navigate to *Settings* -> *Resources* -> *WSL Integration* and enable Ubuntu (or your chosen distribution).
 
-* ### SQL/MySQL
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/WSL_1.png)
+
+### SQL/MySQL
 ---
 
 #### What they are:
@@ -115,11 +121,15 @@ Once installed, we also need to activate WSL in Docker. Navigate to *Settings* -
 
 Install with Docker by using typing 'MySQL' in the search bar at the top, and click Pull.
 
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/MySQL_1.png)
+
 Another 'technically' optional program is MySQL Workshop, a GUI to make SQL statements and monitor databases. You don't need it, but it's nice to have.
 
 Install MySQL Workbench at [https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
 
-* ### Airbyte
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/MySQL_3.png)
+
+### Airbyte
 ---
 
 #### What it is:
@@ -144,7 +154,9 @@ username: airbyte
 
 password: password
 
-* ### *dbt
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Airbyte_1.png)
+
+### *dbt
 ---
 
 #### What it is:
@@ -165,7 +177,7 @@ We also need to install a version on docker for Airbyte to use.
 
 `docker pull ghcr.io/dbeatty10/dbt-mysql`
 
-* ### SuperSet
+### SuperSet
 ---
 
 #### What it is:
@@ -202,6 +214,7 @@ Finally, we can get up other roles beside the admin account. I am not sure if th
 
 Navigate to [http://localhost:8080/login/](http://localhost:8080/login/) to see Superset in action.
 
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_1.png)
 
 ## Part 2: Connecting Google Sheets to MySQL
 ---
