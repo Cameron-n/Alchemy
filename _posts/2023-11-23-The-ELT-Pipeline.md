@@ -23,14 +23,13 @@ The purpose of this project is partially to demonstrate my knowledge of Data Eng
 ## Part 1: Installation
 ---
 
-This is a list of all the programs we will need to install. We will need a fair amount of space, approximately 30 GBs but it would be wise to have at least 40 to 50 GBs. This is also intended for Windows 10 or 11.
+This is a list of all the programs we will need to install. We will need a fair amount of space, approximately 30 GBs but it would be wise to have at least 40 to 50 GBs. This is also intended for Windows 10 or 11. For Linux, you can probably just skip installing WSL and everything else will be the same. No clue for Mac, sorry!
 
 | Program          | Purpose                   | Size (approx.)  |
 |------------------|---------------------------|-----------------|
 | Anaconda         | Package manager for Python| 8 GB            |
 | Python           | General Purpose Language  | part of Anaconda|
 | Spyder           | Python Editor             | part of Anaconda|
-| Git              | Version control           | <1 GB           |
 | WSL              | Allows Linux on Windows   | ~2 GB           |
 | Docker           | Infrastructure            | 20 GB           |        
 | SQL              | Database                  | part of docker  |
@@ -103,14 +102,14 @@ Once installed, we also need to activate WSL in Docker. Navigate to *Settings* -
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/WSL_1.png)
 
-### SQL/MySQL/PostgreSQL
+### SQL (MySQL/PostgreSQL)
 ---
 
 #### What they are:
 
 * SQL is a language even more ubiquitous than Python in data science. It is a database language for relational databases (basically, data in tables). SQL and Python are the backbone of data Transformations, with SQL more limited than Python but faster and easier to use for common transformations and general database tasks.
 
-* MySQL and PostgreSQL are both version of SQL and databases. I've used both for this project are the differences are minor. You can choose either one.
+* MySQL and PostgreSQL are both version of SQL and databases. I've used both for this project and the differences are minor. You can choose either one.
 
 #### Installation:
 
@@ -130,7 +129,7 @@ Install pgAdmin4 at [https://www.pgadmin.org/download/pgadmin-4-windows/](https:
 
 #### What it is:
 
-Airbyte is the EL of ELT. It can take data from a Source (Like Google Sheets) to a Destination (Like our MySQL database).
+Airbyte is the EL of ELT. It can take data from a Source (Like Google Sheets) to a Destination (Like our database).
 
 #### Installation:
 
@@ -152,7 +151,7 @@ password: password
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Airbyte_1.png)
 
-### *dbt
+### dbt --> OUTDATED. NOT NEEDED.
 ---
 
 #### What it is:
@@ -212,14 +211,14 @@ Navigate to [http://localhost:8080/login/](http://localhost:8080/login/) to see 
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_1.png)
 
-## Part 2: Connecting Google Sheets to MySQL
+## Part 2: Connecting Google Sheets to SQL Database
 ---
 
 Phew. Now that everything is installed, we can begin transporting some data.
 
 What we are about to do, in a sentence, is:
 
-_Connect a Google Sheets document to our MySQL database using Airbyte, with dbt doing some transformations, which we will then connect to Superset for analysis, almost all run on Docker._
+_Connect a Google Sheets document to our mySQL/PostgreSQL database using Airbyte, which we will then connect to Superset for analysis, all run on Docker._
 
 ### The Data:
 ---
@@ -234,13 +233,13 @@ Next, we'll need to set up access in Googles API. To do this, follow the instruc
 
 [https://docs.airbyte.com/integrations/sources/google-sheets/](https://docs.airbyte.com/integrations/sources/google-sheets/)
 
-### Setup SQL
+### Setup SQL (NEED TO UPDATE WITH POSTGRESQL)
 
 Start SQL in Docker and type the following in the command prompt.
 
 `docker run --name <container-name> -e -p 3306:3306 MYSQL_ROOT_PASSWORD=<password> -d mysql:latest`
 
-Write down <password> as you will need it to access the database. The username is 'root'. 
+Write down <password> as you will need it to access the database. The username is 'root'. NEED TO UPDATE FOR POSTRESQL
 
 ### Setup Airbyte:
 
@@ -268,19 +267,19 @@ Destination name: Any name you like
 
 Host: localhost
 
-Port: 3306
+Port: 3306 (MySQL) or 5432 (PostgreSQL)
 
 DB Name: Name of the database
 
-User: root
+User: root or (NEED TO UPDATE FOR POSTRESQL)
 
 In Optional fields,
 
-Password: your password from the MySQL setup
+Password: your password from the SQL setup
 
-We can now, finally, move the data. Go to the Connections tab, select the Source and Destination we set up, and press Sync now. With a bit of luck, Airbyte should populate your MySQL database with the data from Google Sheets!
+We can now, finally, move the data. Go to the Connections tab, select the Source and Destination we set up, and press Sync now. With a bit of luck, Airbyte should populate your database with the data from Google Sheets!
 
-### Setup dbt:
+### Setup dbt: --> OUTDATED. NOT NEEDED
 
 All that's left is to do some transformations, and connect our Analysis tool to the data. 
 
@@ -369,7 +368,7 @@ _Note, newer versions of dbt use `--select` instead of `--models`. We are intent
 
 You'll need to install SQLalchemy and pymysql using `python -m pip install sqlalchemy` and `python -m pip install pymysql` from the command prompt in Anaconda. These are libraries used to connect to the database. It is by pure, entertaining, coincidence that Alchemy is the mixing of ingredients in Morrowind, and also the name of the SQL library. This will include using pandas which I will not explain in detail. 
 
-We are going to use the following Python script:
+We are going to use the following Python script: NEED TO UPDATE FOR POSTRESQL
 
 ```python
 # MySQL python transformation
@@ -445,11 +444,13 @@ finally:
 
 ```
 
-You can copy the above into Spyder and run it with the MySQL database running in Docker. Hopefully, you should see a new table created if you look in MySQL Workbench, or later in Superset.
+You can copy the above into Spyder and run it with the database running in Docker. Hopefully, you should see a new table created if you look in Workbench/pgAdmin4, or later in Superset.
 
-We now want to create a new table from the table we created using Python. We'll do this with SQL since it's a simpler transformation (a join). This script creates all possible pairs of ingredients where at least one effect matches, containing no duplicates, and where any single ingredient cannot combine with itself.
+We now want to create a new table from the table we created using Python. We'll do this with SQL since it's a simpler transformation (a join). This script creates all possible pairs of ingredients where at least one effect matches, contains no duplicates, and where any single ingredient cannot combine with itself.
 
 _Note, in dbt we don't need the CREATE statement as dbt uses the SELECT statement to construct a new table_
+
+NEED TO UPDATE FOR POSTRESQL
 
 ```sql
 CREATE TABLE ingredient_pairs AS
@@ -475,7 +476,7 @@ or t1.`effect 4` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AN
 ) 
 ```
 
-You can run this from MySQL Workbench, using dbt, or the shell if you know how.
+You can run this from Workbench/pgAdmin4, using dbt, or the shell if you know how.
 
 We now have a dataset we can connect to Superset for analysis.
 
