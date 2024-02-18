@@ -23,7 +23,7 @@ The purpose of this project is partially to demonstrate my knowledge of Data Eng
 ## Part 1: Installation
 ---
 
-This is a list of all the programs we will need to install. We will need a fair amount of space, approximately 30 GBs but it would be wise to have at least 40 to 50 GBs. This is also intended for Windows 10 (11 probably works too).
+This is a list of all the programs we will need to install. We will need a fair amount of space, approximately 30 GBs but it would be wise to have at least 40 to 50 GBs. This is also intended for Windows 10 or 11.
 
 | Program          | Purpose                   | Size (approx.)  |
 |------------------|---------------------------|-----------------|
@@ -33,9 +33,8 @@ This is a list of all the programs we will need to install. We will need a fair 
 | Git              | Version control           | <1 GB           |
 | WSL              | Allows Linux on Windows   | ~2 GB           |
 | Docker           | Infrastructure            | 20 GB           |        
-| SQL (MySQL)      | Database                  | part of docker  |
+| SQL              | Database                  | part of docker  |
 | Airbyte          | The EL of ELT             | part of docker  |
-| dbt*             | The T of ELT              | part of docker  |
 | SuperSet         | BI tool                   | part of docker  |
 | Total            |                           | ~30 GB          |
 
@@ -56,15 +55,11 @@ Anacondas, and Pythons, and Spyders. Who knew programmers had a sense of humour?
 
 Go to [https://www.anaconda.com/download/](https://www.anaconda.com/download/) to download anaconda, which includes anaconda navigator, a GUI.
 
-Once installed, create a new Python environment with version 3.9.18*.
-
 We can then install Spyder, as well as the command prompt (cmd). I don't think this is strictly needed, but it makes using the cmd easier. Otherwise, we would have to activate the Python environment from the cmd each time.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Anaconda_1.jpg)
 
-*_I used MySQL and, in retrospect, PostgresSQL might have been better since dbt does not officially support MySQL. This required me to use an unoffical plugin and an older version of Python. Unfortunately, as we will see later on, I could not get it to work as intended. Check the required version of Python (probably latest) if you want to try PostgresSQL or another supported database._
-
-### Git/Github
+### Git/Github --> OUTDATED. NOT REQUIRED
 ---
 
 #### What they are:
@@ -108,24 +103,25 @@ Once installed, we also need to activate WSL in Docker. Navigate to *Settings* -
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/WSL_1.png)
 
-### SQL/MySQL
+### SQL/MySQL/PostgreSQL
 ---
 
 #### What they are:
 
 * SQL is a language even more ubiquitous than Python in data science. It is a database language for relational databases (basically, data in tables). SQL and Python are the backbone of data Transformations, with SQL more limited than Python but faster and easier to use for common transformations and general database tasks.
 
-* MySQL is both a version of SQL and a database.
+* MySQL and PostgreSQL are both version of SQL and databases. I've used both for this project are the differences are minor. You can choose either one.
 
 #### Installation:
 
-Install with Docker by typing 'MySQL' in the search bar at the top, and click Pull.
+Install with Docker by typing 'MySQL' or 'PostgreSQL' in the search bar at the top, and click Pull.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/MySQL_1.png)
 
-Another 'technically' optional program is MySQL Workshop, a GUI to make SQL statements and monitor databases. You don't need it, but it's nice to have.
+Another 'technically' optional program is MySQL Workshop or pgAdmin, GUIs to make SQL statements and monitor databases. You don't need one, but it's nice to have.
 
 Install MySQL Workbench at [https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
+Install pgAdmin4 at [https://www.pgadmin.org/download/pgadmin-4-windows/](https://www.pgadmin.org/download/pgadmin-4-windows/)
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/MySQL_3.png)
 
