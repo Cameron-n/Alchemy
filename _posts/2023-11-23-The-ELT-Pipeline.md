@@ -5,6 +5,9 @@ layout: post
 
 ## Introduction
 ---
+
+
+
 * #### The E stand for Extraction,
 * #### The L stands for Load,
 * #### The T stands for Transform.
