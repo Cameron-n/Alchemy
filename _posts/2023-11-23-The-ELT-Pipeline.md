@@ -6,7 +6,15 @@ layout: post
 ## Introduction
 ---
 
+adding 
+extra
+space
+since
+picture
+causes
+problems
 
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/ELT1.jpg)
 
 * #### The E stand for Extraction,
 * #### The L stands for Load,
