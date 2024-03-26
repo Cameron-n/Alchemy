@@ -9,27 +9,38 @@ Welcome back. If you haven't come from my previous post, this follows on directl
 
 Today, we're going to look at some transformations to get the data we really want, followed by the actual analysis.
 
-Let's get started! (explain what we are doing i.e. morrowind)
+Previously, the actual goal we want to accomplish was brushed over. What we want is to contruct tables of all possible potions, and then draw any interesting conclusions from them.
+What are potions, you ask? They are a combination of ingredients (from our data) following these rules:
+* Each Ingredient has up to four effects. 
+* A potion has an effect if two (or more) ingredients share the same effect.
+* The total number of ingredients in a potion is limited to four.
+* Each ingredient can only be used once per potion.
+
+So, let's get started!
+
+
 
 
 
 ---
-## Transformations
+## Transformations SQL
 
-What we want is all possible potion combinations. The rules are as follows:
-* Each Ingredient has up to four effects. 
-* A potion has an effect if two (or more) ingredients share the same effect.
-* The total number of ingredients in a potion is limited to four.
+What we want is all possible potion combinations.
 
-So, using our 'Ingredients_final' table, we want to create three new tables. One for potions with two ingredients, one for three, and one for four (Spoiler, we are actually going to create four).
+So, using our 'Ingredients_final' table, we'll create three new tables. One for potions with two ingredients, one for three, and one for four (spoiler, we are actually going to create four tables).
 
-We are going to use the following SQL code to create our first database, made from two ingredients. (Note: break down + explain code)
+First, let's SELECT all the columns we want. That's: the ingredients, and the effects. We'll be creating the table by joining the 'ingredients_final' table with itself, i.e. linking rows from two tables together (in this case the same table, a 'self join'). The first part of the code is as follows:
 
 ```sql
 select t1.ingredients as t1ing, t2.ingredients as t2ing,
 t1."effect 1" as t1e1, t1."effect 2" as t1e2, t1."effect 3" as t1e3, t1."effect 4" as t1e4,
 t2."effect 1" as t2e1, t2."effect 2" as t2e2, t2."effect 3" as t2e3, t2."effect 4" as t2e4
 from  ingredients_final t1, ingredients_final t2
+```
+
+This gives us all possible combinations, but we want to impose the rules stated earlier. If we had three ingredients: A, B, and C, we want AB, AC, and BC only. You might be able to see this can be achieved my sorting the ingredients alphabetically. We also want to make sure the ingredients share at least one effect (and to exclude 'blank' cells as counting as effects). The second part of the code is as follows and together creates the full code:
+
+```sql
 where t1.ingredients < t2.ingredients
 and (
    t1."effect 1" in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") and t1."effect 1" != ''
@@ -39,7 +50,8 @@ or t1."effect 4" in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") an
 ) 
 ```
 
-We can adapt the above code for three ingredients. (Note: break down + explain code)
+Thats pairs of ingredients out the way, but what about triplets? We can actually use our results for potion pairs to create triplets by just adding on all valid third ingredients.
+We'll need to SELECT the correct columns for three ingredients, and join a copy of 'ingredients_final' to our potion pairs:
 
 ```sql
 select t1ing, t2ing, t3.ingredients as t3ing,
@@ -59,6 +71,11 @@ or t1."effect 3" in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") an
 or t1."effect 4" in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") and t1."effect 4" != ''
 )
 ) t12, ingredients_final t3
+```
+
+As you can see, most of the above is just our first script. We then need to enforce the rules like before:
+
+```sql
 where t1ing < t3.ingredients and t2ing < t3.ingredients --stops duplicates/single ingredient potions.
 and ( --Third ingredient must add at least 1 new effect.
    t1e1 in (t3."effect 1",t3."effect 2",t3."effect 3",t3."effect 4") and t1e1 not in (t2e1,t2e2,t2e3,t2e4) and t1e1 != ''
@@ -76,10 +93,12 @@ and not(
 )
 ```
 
-We can adapt the above code for four ingredients. (Note: break down + explain code)
+The only addition is the 'AND NOT' code at the end. This is to exclude the case where one of the first two ingredients shares all 4 effects with the third, removing the need for the last ingredient and hence not being a triplet.
+
+We can also adapt the above code for four ingredients, though we run into a slight problem:
 
 ```sql
-select t1ing, t2ing, t3ing, t4.ingredients as t4ing, -- missing disjoint potion pairs intentionally.
+select t1ing, t2ing, t3ing, t4.ingredients as t4ing, -- missing disjoint potion pairs.
 t1e1, t1e2, t1e3, t1e4, t2e1, t2e2, t2e3, t2e4, t3e1, t3e2, t3e3, t3e4,
 t4."effect 1" as t4e1, t4."effect 2" as t4e2, t4."effect 3" as t4e3, t4."effect 4" as t4e4
 from --uses potion_triples to generate potions with 4 ingredients, not including 2 disjoint pairs.
@@ -138,7 +157,7 @@ and not(
 )
 ```
 
-Now, our code for four ingredients doesn't cover the case when there are two pairs of ingredients that don't share any effects between the pairs. (Note: break down + explain code)
+Our code for four ingredients doesn't cover the case when there are two pairs of ingredients that don't share any effects between the pairs. We can easily add this case by self joining the 'potion pairs' table.
 
 ```sql
 SELECT t1."ingredient 1" as "ingredient 1", t1."ingredient 2" as "ingredient 2", --disjoint potion pairs
@@ -157,7 +176,12 @@ and (t1."effect 3" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 
 and (t1."effect 4" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 4" = '')
 ```
 
-Now, the data has extra columns that we do not need. We can use the following python code to remove these for each database. We can switch the numbers to access each table.
+We can now say goodbye to SQL, and hello to Python, since we *still* have problems we need to solve. Yay!
+
+---
+## Transformations Python
+
+The data has extra columns that we do not need. We can use the following python code to remove these for each database. We can switch the numbers to access each table.
 
 ```python
 # Remove the columns containing duplicate information in potion_pairs
