@@ -11,7 +11,6 @@ Today, we're going to look at some transformations to get the data we really wan
 
 Let's get started!
 
-TEST TEST TEST TEST TEST
 ---
 ## Transformations
 
@@ -164,6 +163,8 @@ and (t1."effect 4" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 
 Now, the data has extra columns that we do not need. We can use the following python code to remove these for each database. We can switch the numbers to access each table. (Note: break down + explain code)
 
 ```python
+# Remove the columns containing duplicate information in potion_pairs
+# in the postgres database
 from sqlalchemy import create_engine
 
 import pandas as pd
