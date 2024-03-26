@@ -337,13 +337,13 @@ Now, we can put everything together into a dashboard as follows.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_5_dark.png)
 .
-![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_triples_dark.png)
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_triples.png)
 
 And we can filter them. For example, looking at all potions with exactly 4 effects.
 
-![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_n4_dark.png)
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_n4.png)
 .
-![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_n4_pairs_dark.png)
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_n4_pairs.png)
 
 For those of you actually interested in Morrowind, we can make a few observations. (something something shock potion, double berry, probably already knew).
 
