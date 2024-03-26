@@ -157,35 +157,18 @@ and not(
 )
 ```
 
-Our code for four ingredients doesn't cover the case when there are two pairs of ingredients that don't share any effects between the pairs. We can easily add this case by self joining the 'potion pairs' table.
+Our code for four ingredients doesn't cover the case when there are two pairs of ingredients that don't share any effects between the pairs. We'll solve this a little later, when our tables are in amore useful format. (We can easily add this case by self joining the 'potion pairs' table.)
 
-```sql
-SELECT t1."ingredient 1" as "ingredient 1", t1."ingredient 2" as "ingredient 2", --disjoint potion pairs
-t2."ingredient 1" as "ingredient 3", t2."ingredient 2" as "ingredient 4",
-t1."effect 1" as "effect 1", t1."effect 2" as "effect 2", t1."effect 3" as "effect 3", t1."effect 4" as "effect 4", 
-t2."effect 1" as "effect 5", t2."effect 2" as "effect 6", t2."effect 3" as "effect 7", t2."effect 4" as "effect 8", 
-t1."number of effects" + t2."number of effects" as "number of effects"
-FROM potion_pairs_final t1, potion_pairs_final t2
-WHERE t1."ingredient 1" < t2."ingredient 1" --stops duplicates
-and t1."ingredient 1" not in (t1."ingredient 2", t2."ingredient 1", t2."ingredient 2") 
-and t1."ingredient 2" not in (t2."ingredient 1", t2."ingredient 2")
-and t2."ingredient 1" not in (t2."ingredient 2") --the two potions cannot share any effects 
-and (t1."effect 1" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 1" = '') 
-and (t1."effect 2" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 2" = '') 
-and (t1."effect 3" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 3" = '') 
-and (t1."effect 4" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 4" = '')
-```
-
-We can now say goodbye to SQL, and hello to Python, since we *still* have problems we need to solve. Yay!
+We can now say goodbye to SQL (for now), and hello to Python, since we *still* have problems we need to solve. Yay!
 
 ---
 ## Transformations Python
 
-The data has extra columns that we do not need. We can use the following python code to remove these for each database. We can switch the numbers to access each table.
+The tables so far list every effect for every ingredient. We just want the valid effects, and we also want the total number of effects. Doing this in SQL would have been quite complicated, and we need all the effects to create each table from the previous one. 
+
+First, if it hasn't been done already, we need to install sqlalchemy to interact with the database, and the import the neccessary functions:
 
 ```python
-# Remove the columns containing duplicate information in potion_pairs
-# in the postgres database
 from sqlalchemy import create_engine
 
 import pandas as pd
@@ -194,13 +177,19 @@ import numpy as np
 # Setup connection
 sqlEngine       = create_engine('postgresql://postgres:mysecretpassword@localhost:5432/postgres', pool_recycle=3600)
 dbConnection    = sqlEngine.connect()
+```
 
-# Choose which schema to access
+The connection to the database requires a password. As long as you've been following along, the password and port should be the same. (NEED TO ADD MYSQL).
+
+Next, since we'll be using this script for the three tables, lets make it a little user friendly by adding the ability to select which table to use, along with the names of the columns we want the new tables to have, and their names.
+
+```python
+# Choose which table to access
 while True:
     table_number = int(input("Choose 2, 3, or 4 "))
     if  table_number == 2:
         effects = 4                  # total possible number of effects
-        string_part = 'potion_pairs' # name of schema
+        string_part = 'potion_pairs' # name of table
         columns_part = ['ingredient 1', 'ingredient 2',
          'effect 1','effect 2','effect 3','effect 4',
          'number of effects']        # name of columns in new schema
@@ -222,13 +211,21 @@ while True:
         break
     else:
         print("Error, not 2, 3, or 4")
+```
 
+After that, we SELECT the data we want:
+
+```python
 # Create frame. 
 frame = pd.read_sql(f"select * from public.{string_part}", dbConnection);
 
 # Change to numpy array to access data individually
 frame = frame.to_numpy()
+```
 
+And then remove the data we don't need:
+
+```python
 # Remove duplicate data and fill remaining spaces, if any, with blanks
 new_frame = np.empty(table_number + effects + 1)
 for rows in frame:
@@ -261,8 +258,11 @@ new_frame = new_frame[1:]
 
 # Create new reshaped dataframe for output
 final_frame=pd.DataFrame(new_frame, columns=columns_part)
+```
 
+And, finally, write it back to the database:
 
+```python
 # SQL magic to write new table    
 tableName = f"{string_part}_final" 
 
@@ -287,7 +287,26 @@ finally:
     dbConnection.close()
 ```
 
-Now that our data is in the right format, we can begin the analysis.
+The final thing we need to do is fix the problem we had with missing disjoint pairs of ingredients. Now that we have the 'potions pairs final' table, we can simply do a self join:
+
+```sql
+SELECT t1."ingredient 1" as "ingredient 1", t1."ingredient 2" as "ingredient 2", --disjoint potion pairs
+t2."ingredient 1" as "ingredient 3", t2."ingredient 2" as "ingredient 4",
+t1."effect 1" as "effect 1", t1."effect 2" as "effect 2", t1."effect 3" as "effect 3", t1."effect 4" as "effect 4", 
+t2."effect 1" as "effect 5", t2."effect 2" as "effect 6", t2."effect 3" as "effect 7", t2."effect 4" as "effect 8", 
+t1."number of effects" + t2."number of effects" as "number of effects"
+FROM potion_pairs_final t1, potion_pairs_final t2
+WHERE t1."ingredient 1" < t2."ingredient 1" --stops duplicates
+and t1."ingredient 1" not in (t1."ingredient 2", t2."ingredient 1", t2."ingredient 2") 
+and t1."ingredient 2" not in (t2."ingredient 1", t2."ingredient 2")
+and t2."ingredient 1" not in (t2."ingredient 2") --the two potions cannot share any effects 
+and (t1."effect 1" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 1" = '') 
+and (t1."effect 2" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 2" = '') 
+and (t1."effect 3" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 3" = '') 
+and (t1."effect 4" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 4" = '')
+```
+
+Now that all four tables are in the right format, we can begin the analysis. (ADD MISSING ROWS 2,3,8).
 
 ---
 ## Superset Analysis
