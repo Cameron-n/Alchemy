@@ -11,16 +11,19 @@ Today, we're going to look at some transformations to get the data we really wan
 
 Let's get started!
 
+TEST TEXT TO REMOVE UNNEEDED SPACE PLEASE IGNORE
+
 ---
 ## Transformations
-What we want is all possible potion combination. The rules are as follows:
+
+What we want is all possible potion combinations. The rules are as follows:
 * Each Ingredient has up to four effects. 
 * A potion has an effect if two (or more) ingredients share the same effect.
 * The total number of ingredients in a potion is limited to four.
 
-So, using our 'Ingredients_final' database, we want to create three new databases. One for potions with two ingredients, one for three, and one for four (Spoiler, we are actually going to create four).
+So, using our 'Ingredients_final' table, we want to create three new tables. One for potions with two ingredients, one for three, and one for four (Spoiler, we are actually going to create four).
 
-We are going to use the following SQL code to create our first database, made from two ingredients.
+We are going to use the following SQL code to create our first database, made from two ingredients. (Note: break down + explain code)
 
 ```sql
 select t1.ingredients as t1ing, t2.ingredients as t2ing,
@@ -41,7 +44,7 @@ or t1."effect 4" in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") an
 ) 
 ```
 
-We can adapt the above code for three ingredients.
+We can adapt the above code for three ingredients. (Note: break down + explain code)
 
 ```sql
 select t1ing, t2ing, t3.ingredients as t3ing,
@@ -78,7 +81,7 @@ and not(
 )
 ```
 
-We can adapt the above code for four ingredients.
+We can adapt the above code for four ingredients. (Note: break down + explain code)
 
 ```sql
 select t1ing, t2ing, t3ing, t4.ingredients as t4ing, -- missing disjoint potion pairs intentionally.
@@ -140,7 +143,7 @@ and not(
 )
 ```
 
-Now, our code for four ingredients doesn't cover the case when there are two pairs of ingredients that don't share any effects between the pairs.
+Now, our code for four ingredients doesn't cover the case when there are two pairs of ingredients that don't share any effects between the pairs. (Note: break down + explain code)
 
 ```sql
 SELECT t1."ingredient 1" as "ingredient 1", t1."ingredient 2" as "ingredient 2", --disjoint potion pairs
@@ -159,7 +162,7 @@ and (t1."effect 3" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 
 and (t1."effect 4" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 4" = '')
 ```
 
-Now, the data has extra columns that we do not need. We can use the following python code to remove these for each database. We can switch the numbers to access each database (wrong word?).
+Now, the data has extra columns that we do not need. We can use the following python code to remove these for each database. We can switch the numbers to access each table. (Note: break down + explain code)
 
 ```python
 # Remove the columns containing duplicate information in potion_pairs
@@ -170,29 +173,45 @@ from sqlalchemy import create_engine
 import pandas as pd
 import numpy as np
 
-#setup connection
+# Setup connection
 sqlEngine       = create_engine('postgresql://postgres:mysecretpassword@localhost:5432/postgres', pool_recycle=3600)
 dbConnection    = sqlEngine.connect()
 
-#code for later
-table_number = 4 #raw input time
-if  table_number == 2:
-    string_part = 'potion_pairs'
-    effects = 4
-elif table_number == 3:
-    effects = 4
-    string_part = 'potion_triples'
-elif table_number == 4:
-    effects = 8
-    string_part = 'potion_quads'
+# Choose which schema to access
+while True:
+    table_number = int(input("Choose 2, 3, or 4 "))
+    if  table_number == 2:
+        effects = 4                  # total possible number of effects
+        string_part = 'potion_pairs' # name of schema
+        columns_part = ['ingredient 1', 'ingredient 2',
+         'effect 1','effect 2','effect 3','effect 4',
+         'number of effects']        # name of columns in new schema
+        break
+    elif table_number == 3:
+        effects = 4
+        string_part = 'potion_triples'
+        columns_part = ['ingredient 1', 'ingredient 2','ingredient 3',
+         'effect 1','effect 2','effect 3','effect 4',
+         'number of effects']
+        break
+    elif table_number == 4:
+        effects = 8
+        string_part = 'potion_quads'
+        columns_part = ['ingredient 1', 'ingredient 2','ingredient 3','ingredients 4',
+         'effect 1','effect 2','effect 3','effect 4',
+         'effect 5','effect 6','effect 7','effect 8',
+         'number of effects']
+        break
+    else:
+        print("Error, not 2, 3, or 4")
 
-#create frame. Replace name with 'potion_pairs','potion_triples','potion_quads'
-frame           = pd.read_sql("select * from public.potion_quads", dbConnection);
+# Create frame. 
+frame = pd.read_sql(f"select * from public.{string_part}", dbConnection);
 
-#change to numpy array to access data individually
+# Change to numpy array to access data individually
 frame = frame.to_numpy()
 
-#remove duplicate data and fill remaining spaces, if any, with blanks
+# Remove duplicate data and fill remaining spaces, if any, with blanks
 new_frame = np.empty(table_number + effects + 1)
 for rows in frame:
     set_values = list(set(rows[table_number:]))
@@ -222,14 +241,12 @@ for rows in frame:
     new_frame = np.vstack([new_frame, list_values])
 new_frame = new_frame[1:]
 
-#create new reshaped dataframe for output
-#rewrite later to include 2,3,4
-final_frame=pd.DataFrame(new_frame, columns=['ingredient 1', 'ingredient 2','ingredient 3','ingredients 4','effect 1','effect 2','effect 3','effect 4','effect 5','effect 6','effect 7','effect 8','number of effects'])
+# Create new reshaped dataframe for output
+final_frame=pd.DataFrame(new_frame, columns=columns_part)
 
 
-#sql magic to write new table 
-#rewrite later to include 2,3,4      
-tableName = "potion_quads_final" 
+# SQL magic to write new table    
+tableName = f"{string_part}_final" 
 
 try:
 
@@ -254,20 +271,24 @@ finally:
 
 Now that our data is in the right format, we can begin the analysis.
 
-
-
 ---
 ## Superset Analysis
 
-(load data in)
+We first have to load our new tables into Superset as in the picture below. (add picture)
 
-(make charts)
+We can now make some charts to understand the data. What we want to do is create some overview charts to see the total number of potions, and then charts that are basically copies of the tables we just made. Since Superset is interactable, these charts are more easily used than the SQL tables.
 
-(make dashboard)
+(explain how to make charts)
 
-(make dramatic revelation)
+Now, we can put everything together into a dashboard as follows. (add picture)
+
+For those of you actually interested in Morrowind, we can make a few observations. (something something shock potion, double berry, probably already knew).
 
 ---
 ## Conclusion
 
-(something something this has been fun)
+And that's this project done! In this part, we used our base table to create a bunch of new tables with the relevant data, created an interactive dashboard analyse the data, and drew some conclusions.
+
+Overall, we managed to create a simple ELT pipeline that takes a google sheet document, does a bunch of transformations, and ends up with a nice dashboard in Superset.
+
+I hope to see you all again next time. Goodbye!
