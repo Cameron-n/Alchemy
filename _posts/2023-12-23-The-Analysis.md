@@ -3,13 +3,13 @@ title: "The Analysis"
 layout: post
 ---
 
-## The Analysis (WORK IN PROGRESS)
+## Introduction
 
 Welcome back. If you haven't come from my previous post, this follows on directly from there.
 
 Today, we're going to look at some transformations to get the data we really want, followed by the actual analysis.
 
-Let's get started!
+Let's get started! (explain what we are doing i.e. morrowind)
 
 
 
@@ -28,12 +28,7 @@ We are going to use the following SQL code to create our first database, made fr
 ```sql
 select t1.ingredients as t1ing, t2.ingredients as t2ing,
 t1."effect 1" as t1e1, t1."effect 2" as t1e2, t1."effect 3" as t1e3, t1."effect 4" as t1e4,
-t2."effect 1" as t2e1, t2."effect 2" as t2e2, t2."effect 3" as t2e3, t2."effect 4" as t2e4,
-  cast(t1."effect 1" in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") and t1."effect 1" != '' as INTEGER)
-+ cast(t1."effect 2" in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") and t1."effect 2" != '' as INTEGER)
-+ cast(t1."effect 3" in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") and t1."effect 3" != '' as INTEGER)
-+ cast(t1."effect 4" in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") and t1."effect 4" != '' as INTEGER)
-as number_of_effects
+t2."effect 1" as t2e1, t2."effect 2" as t2e2, t2."effect 3" as t2e3, t2."effect 4" as t2e4
 from  ingredients_final t1, ingredients_final t2
 where t1.ingredients < t2.ingredients
 and (
