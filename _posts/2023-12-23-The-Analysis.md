@@ -322,6 +322,7 @@ As an example, we can make the charts for 'potion pairs'. The process will be th
 First, we want an overview of the number of potions by number of effects.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_6_dark.png)
+.
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_7_dark.png)
 
 Then, we want a chart containing each and every potion pair.
@@ -335,13 +336,13 @@ We also want to add a chart that we can use to filter our other charts by number
 Now, we can put everything together into a dashboard as follows.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_5_dark.png)
-
+.
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_triples_dark.png)
 
 And we can filter them. For example, looking at all potions with exactly 4 effects.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_n4_dark.png)
-
+.
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_n4_pairs_dark.png)
 
 For those of you actually interested in Morrowind, we can make a few observations. (something something shock potion, double berry, probably already knew).
