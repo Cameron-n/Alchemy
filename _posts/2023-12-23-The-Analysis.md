@@ -160,7 +160,7 @@ and (t1."effect 3" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 
 and (t1."effect 4" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 4" = '')
 ```
 
-Now, the data has extra columns that we do not need. We can use the following python code to remove these for each database. We can switch the numbers to access each table. (Note: break down + explain code)
+Now, the data has extra columns that we do not need. We can use the following python code to remove these for each database. We can switch the numbers to access each table.
 
 ```python
 # Remove the columns containing duplicate information in potion_pairs
