@@ -11,8 +11,6 @@ Today, we're going to look at some transformations to get the data we really wan
 
 Let's get started!
 
-TEST TEXT TO REMOVE UNNEEDED SPACE PLEASE IGNORE
-
 ---
 ## Transformations
 
