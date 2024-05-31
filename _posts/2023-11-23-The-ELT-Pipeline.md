@@ -191,7 +191,7 @@ Install using the command prompt as follows:
 
 `docker run -d -p 8080:8088 -e "SUPERSET_SECRET_KEY=your_secret_key_here" --name superset apache/superset`
 
-your_secret_key_here can be replaced with anything you like. Just make sure to write it down somewhere. Security isn't our focus here, but a secret key is required for Superset to work.
+your_secret_key_here can be replaced with anything you like. Just make sure to write it down somewhere. Security isn't our focus here, but a secret key is required for Superset to work. Note that 8080:8088 is not a typo.
 
 `docker exec -it superset superset fab create-admin`
 
@@ -235,13 +235,17 @@ Next, we'll need to set up access in Googles API. To do this, follow the instruc
 
 [https://docs.airbyte.com/integrations/sources/google-sheets/](https://docs.airbyte.com/integrations/sources/google-sheets/)
 
-### Setup SQL (NEED TO UPDATE WITH POSTGRESQL)
+### Setup SQL
 
 Start SQL in Docker and type the following in the command prompt.
 
-`docker run --name <container-name> -e -p 3306:3306 MYSQL_ROOT_PASSWORD=<password> -d mysql:latest`
+For MySQL:
+`docker run --name <container-name> -p 3306:3306 -e MYSQL_ROOT_PASSWORD=<password> -d mysql:latest`
 
-Write down <password> as you will need it to access the database. The username is 'root'. NEED TO UPDATE FOR POSTRESQL
+For PostgreSQL:
+`docker run --name <container-name> -p 5432:5432 -e POSTGRES_PASSWORD=<password> -d postgres:latest`
+
+Write down <password> as you will need it to access the database. The username is 'root' (MySQL) or 'postgres' (PostgreSQL).
 
 ### Setup Airbyte:
 
@@ -273,7 +277,7 @@ Port: 3306 (MySQL) or 5432 (PostgreSQL)
 
 DB Name: Name of the database
 
-User: root or (NEED TO UPDATE FOR POSTRESQL)
+User: root (MySQL) or postgres (PostgreSQL)
 
 In Optional fields,
 
@@ -383,10 +387,12 @@ import pandas as pd
 
  
 # Setup connection. CHANGE <database_password> TO YOUR PASSWORD
-sqlEngine       = create_engine('mysql+pymysql://root:<database_password>@127.0.0.1:3306/alchemy', pool_recycle=3600)
+sqlEngine       = create_engine('mysql+pymysql://root:<database_password>@127.0.0.1:3306/alchemy', pool_recycle=3600)     #MySQL
+# OR
+sqlEngine       = create_engine('postgresql://postgres:<database_password>d@localhost:5432/postgres', pool_recycle=3600)  #PostgreSQL
 dbConnection    = sqlEngine.connect()
 
-# Create dataframe
+# Create dataframe. CHANGE <database_name>.<database_table> TO YOUR VALUES
 frame           = pd.read_sql("select * from <database_name>.<database_table>", dbConnection);
 
 # I don't know what this does
@@ -452,19 +458,13 @@ We now want to create a new table from the table we created using Python. We'll 
 
 _Note, in dbt we don't need the CREATE statement as dbt uses the SELECT statement to construct a new table_
 
-NEED TO UPDATE FOR POSTRESQL
+For MySQL:
 
 ```sql
 CREATE TABLE ingredient_pairs AS
 SELECT t1.ingredients AS t1ing,t2.ingredients AS t2ing,
 t1.`effect 1` AS t1e1, t1.`effect 2` AS t1e2, t1.`effect 3` AS t1e3, t1.`effect 4` AS t1e4,
-t2.`effect 1` AS t2e1, t2.`effect 2` AS t2e2, t2.`effect 3` AS t2e3, t2.`effect 4` AS t2e4,
-(
-  (t1.`effect 1` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 1` != '')
-+ (t1.`effect 2` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 2` != '')
-+ (t1.`effect 3` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 3` != '')
-+ (t1.`effect 4` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 4` != '')
-) AS number_of_effects
+t2.`effect 1` AS t2e1, t2.`effect 2` AS t2e2, t2.`effect 3` AS t2e3, t2.`effect 4` AS t2e4
 FROM 
 (
 ingredients_final t1, ingredients_final t2
@@ -472,10 +472,30 @@ ingredients_final t1, ingredients_final t2
 WHERE t1.ingredients < t2.ingredients
 AND (
    t1.`effect 1` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 1` != ''
-or t1.`effect 2` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 2` != ''
-or t1.`effect 3` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 3` != ''
-or t1.`effect 4` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 4` != ''
+OR t1.`effect 2` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 2` != ''
+OR t1.`effect 3` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 3` != ''
+OR t1.`effect 4` IN (t2.`effect 1`,t2.`effect 2`,t2.`effect 3`,t2.`effect 4`) AND t1.`effect 4` != ''
 ) 
+```
+
+For PostgreSQL:
+
+```sql
+CREATE TABLE ingredient_pairs AS
+SELECT t1.ingredient AS t1ing,t2.ingredient AS t2ing,
+t1."effect 1" AS t1e1, t1."effect 2" AS t1e2, t1."effect 3" AS t1e3, t1."effect 4" AS t1e4,
+t2."effect 1" AS t2e1, t2."effect 2" AS t2e2, t2."effect 3" AS t2e3, t2."effect 4" AS t2e4
+FROM
+(
+ingredients t1, ingredients t2
+)
+WHERE t1.ingredient < t2.ingredient
+AND ( 
+   t1."effect 1" IN (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") AND t1."effect 1" != ''
+OR t1."effect 2" IN (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") AND t1."effect 2" != ''
+OR t1."effect 3" IN (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") AND t1."effect 3" != ''
+OR t1."effect 4" IN (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") AND t1."effect 4" != ''
+)
 ```
 
 You can run this from Workbench/pgAdmin4, using dbt, or the shell if you know how.
