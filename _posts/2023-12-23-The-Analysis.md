@@ -25,6 +25,8 @@ So, let's get started!
 ---
 ## Transformations SQL
 
+Note: The code will be for PostgreSQL. For MySQL, you may need to change quotes (") to backticks (`).
+
 What we want is all possible potion combinations.
 
 So, using our 'Ingredients_final' table, we'll create three new tables. One for potions with two ingredients, one for three, and one for four (spoiler, we are actually going to create four tables).
@@ -157,7 +159,7 @@ and not(
 )
 ```
 
-Our code for four ingredients doesn't cover the case when there are two pairs of ingredients that don't share any effects between the pairs. We'll solve this a little later, when our tables are in amore useful format. (We can easily add this case by self joining the 'potion pairs' table.)
+Our code for four ingredients doesn't cover the case when there are two pairs of ingredients that don't share any effects between the pairs. We'll solve this a little later, when our tables are in a more useful format. (We can easily add this case by self joining the 'potion pairs' table).
 
 We can now say goodbye to SQL (for now), and hello to Python, since we *still* have problems we need to solve. Yay!
 
@@ -175,13 +177,15 @@ import pandas as pd
 import numpy as np
 
 # Setup connection
-sqlEngine       = create_engine('postgresql://postgres:mysecretpassword@localhost:5432/postgres', pool_recycle=3600)
+sqlEngine       = create_engine('postgresql://postgres:<database_password>@localhost:5432/postgres', pool_recycle=3600) #PostgreSQL
+#OR
+sqlEngine       = create_engine('mysql+pymysql://mysql:<database_password>@localhost:3306/alchemy', pool_recycle=3600)  #MySQL
 dbConnection    = sqlEngine.connect()
 ```
 
-The connection to the database requires a password. As long as you've been following along, the password and port should be the same. (NEED TO ADD MYSQL).
+The connection to the database requires a password, which we chose in the previous post.
 
-Next, since we'll be using this script for the three tables, lets make it a little user friendly by adding the ability to select which table to use, along with the names of the columns we want the new tables to have, and their names.
+Next, since we'll be using this script for the three tables, lets make it a little user friendly by adding the ability to select which table to use, along with the names of the columns we want the new tables to have, and the names of the tables.
 
 ```python
 # Choose which table to access
@@ -306,12 +310,20 @@ and (t1."effect 3" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 
 and (t1."effect 4" not in (t2."effect 1",t2."effect 2",t2."effect 3",t2."effect 4") or t1."effect 4" = '')
 ```
 
-Now that all four tables are in the right format, we can begin the analysis. (ADD MISSING ROWS 2,3,8).
+One last thing we want to do is add some mostly blank rows to the 'potion_quads_final' table. We want a row with the "number of effects" columns equal 1, 2, and 8. This is because later we will want to add an interactive panel to filter potions by number of effects, but no single table contains all possible numbers 1-8. This seems like the easiest way around this problem.
+
+The code is as follows:
+```sql
+INSERT INTO potion_quads_final "number of effects"
+VALUES 1,2,8
+```
+
+Now that all four tables are in the right format, we can begin the analysis.
 
 ---
 ## Superset Analysis
 
-We first have to load our new tables into Superset as we did at the end of the previous post. Remember to load all four tables, 'potion pairs', 'potion triples', 'potion quads', and 'potion pair pairs'.
+We first have to load our new tables into Superset as we did at the end of the previous post. Remember to load all four tables, 'potion pairs final', 'potion triples final', 'potion quads final', and 'potion pair pairs final'.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_2_dark.png)
 
