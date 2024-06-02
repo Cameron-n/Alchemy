@@ -331,33 +331,32 @@ We can now make some charts to understand the data. What we want to do is create
 
 As an example, we can make the charts for 'potion pairs'. The process will be the same for the others.
 
-First, we want an overview of the number of potions by number of effects.
+First, we want an overview of the number of potions by number of effects. Click 'Charts' at the top and create a new Pivot Table chart.
+We put 'number of effects' into the COLUMNS part, and use METRICS to get COUNT(number of effects) for the data in the table body.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_6_dark.png)
-.
+
+We can then scroll down the DATA window and select 'SHOW ROW TOTAL'. Remember to save the chart before we move on to the next one.
+
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_7_dark.png)
 
-Then, we want a chart containing each and every potion pair.
+Then, we want a new Table chart containing each and every potion pair. Here, we select 'ingredient 1', 'ingredient 2', 'effect 1', 'effect 2', 'effect 3', and 'effect 4' in the DIMENSIONS part.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_pairs_1.png)
 
-We also want to add a chart that we can use to filter our other charts by number of effects. This will requiring adding 2 rows to the 'potion quads' table because (reasons).
+We also want to add another Table chart that we can use to filter our other charts by number of effects. This is why we added extra rows to the 'potion quads' table, and we'll need to link it to that dataset.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_number_of_effects.png)
 
-Now, we can put everything together into a dashboard as follows.
+Now, once we've set up all the charts, we can put everything together into a dashboard. You can use a combination of the CHARTS and the LAYOUT ELEMENTS to get the desired look. Mine looks like this:
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_5_dark.png)
-.
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_triples.png)
 
 And we can filter them. For example, looking at all potions with exactly 4 effects.
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_n4.png)
-.
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/Superset_n4_pairs.png)
-
-For those of you actually interested in Morrowind, we can make a few observations. (something something shock potion, double berry, probably already knew).
 
 ---
 ## Conclusion
