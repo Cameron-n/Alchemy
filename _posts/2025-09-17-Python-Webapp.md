@@ -3,11 +3,11 @@ title: "Python Webapp (WIP)"
 layout: post
 ---
 
+[Picture of Page]
+
 ## Introduction
 
-**Note: The associated repo can be found [here](https://github.com/Cameron-n/Morrowind-Alchemy).**
-
-**Note: The associated website can be found [here](https://cameronn.eu.pythonanywhere.com/).**
+**Note: The associated repo can be found [here](https://github.com/Cameron-n/Morrowind-Alchemy), and the website [here](https://cameronn.eu.pythonanywhere.com/).**
 
 During the first year of my software apprenticeship, I heavily used a Python library called Dash to create a dashboard for the company. As I used the library more, and learnt surrounding skills and technologies, I realised that, despite it's name, it can be used to create whole webapps, not just dashboards.
 
@@ -36,4 +36,55 @@ In case you want to follow along, this is what I'll be using for the project.
 - [MySQL](https://www.mysql.com/) - PythonAnywhere offers databases as part of their package. The MySQL one is free, so I'll be using that! This is to the store some Morrowind data.
 - [Git](https://git-scm.com/)/[GitHub](https://github.com/) - The code is stored on a git repo. The main benefit is the ability to document and share the code, including between my local development computer and the PythonAnywhere servers.
 
-## Test
+# Goal
+
+???
+
+## Project Structure
+
+The psychological benefit of structure and organisation makes the actually programming much more enjoyable. As well as the practical benefits like locataing information faster, it's just nicer to look at and work with.
+
+### Overview
+
+```
+.
+├── assets/
+│   └── styles.css
+├── components/
+│   ├── config.py
+│   ├── ...
+│   └── ...
+├── database/
+│   ├── ...
+│   ├── ...
+│   └── ...
+├── pages/
+│   ├── page one
+│   ├── page two
+│   └── ...
+├── .gitignore
+├── LICENSE
+├── README.md
+├── app.py
+└── requirements.txt
+```
+
+This looks a little complicated, so let's explain some of the simpler items right away.
+
+### Non-project specific
+
+- LICENSE - A standard MIT license. Anyone is welcome to copy from this project.
+- README.md - Contains the markdown for the readme you can read on the repo.
+- .gitignore - A standard GitHub provided ignore list for Python projects. Ignores things like IDE project files.
+- requirements.txt - Contains the libraries used in the project. I have put only independant libraries. For example, Flask is not listed but is a dependancy of Dash so will be installed automatically.
+
+### Dash
+
+- app.py - This is the entrypoint of the application. In other words, the code execution starts here. As it stands, this file will setup and run the Dash application, and also contains the frontend work for the framework of the navbar, header, and main content area.
+- pages - This *folder* contains the pages of this multipage app. Dash automatically searches a folder called pages and then searches for a variable called `layout`. It uses this when a page is requested. This is where the majority of our work will be.
+- components - This is a sort of "catch-all" folder for scripts that don't belong anywhere else. For a smaller size project like this, it works fine. It contains logic that is too extensive to put coveniently in a page script. It also contains `config.py`, while has data for some of the apps visual theme.
+- assets - This is another folder that page finds automatically. It is used to contain assets the app can load, such as pictures. It also contains `.css` files for styling.
+
+### Database
+
+These files are not used by the app, but are used to create and populate the database. More on this later.
