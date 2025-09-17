@@ -3,9 +3,9 @@ title: "The Analysis"
 layout: post
 ---
 
-## Introduction (work in progress)
+## Introduction
 
-Welcome back. If you haven't come from my previous post, this follows on directly from there.
+Welcome back. If you haven't come from [my previous post](https://cameron-n.github.io/Alchemy/The-ELT-Pipeline/), this follows on directly from there.
 
 Today, we're going to look at some transformations to get the data we really want, followed by the actual analysis.
 
