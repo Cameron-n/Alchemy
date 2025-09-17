@@ -16,6 +16,8 @@ In my previous project, I wanted to showcase my skills yet also enjoy myself. Th
 
 So, this project will be about building a webapp to showcase my new skills and vastly improve on that past project.
 
+Please note, I tend to explain things simply and either fully, or with enough detail to understand where to go next. However, due to the complexity of this project, some familiarity with general programming concepts is assumed. Also, details are covered as and when they are relevant, and many questions will likely be raised that would be out of scope to answer. That said, feel free to reach out to me for these questions. I can at least point you to the documentation!
+
 ## Tech Stack
 
 In case you want to follow along, this is what I'll be using for the project.
@@ -39,7 +41,17 @@ In case you want to follow along, this is what I'll be using for the project.
 
 # Goal
 
-???
+The purpose of this project is make it easy to explore alchemy in the game Morrowind. In simple terms, alchemy is where potions are made in the game by combining ingredients. This follows some rules, outlined below, and the goal is to implement these rules, explore the results, and add additional tools to help with related problems (e.g. listing the locations of ingredients).
+
+Definitions:
+- An *Ingredient* is a list of one, two, three, or four effects.
+- A *potential potion* is a combination of two, three, or four ingredients.
+- A *valid* potion has each ingredient share at least one of it's effects
+with at least one of the other ingredients.
+
+To give an example, **Adamantium Ore** has the effects (**Burden**, **Poison**, **Restore Magicka**, **Reflect**). **Comberry** has the effects (**Drain Fatigue**, **Restore Magicka**, **Fire Shield**, **Reflect**). We see they share the effects (**Restore Magicka**, **Reflect**), so a potion would contain those effects if those ingredients were combined into one.
+
+The vast majority of the project is not about Morrowind, so please don't be put off if you have no interest in it. Equally, my passion for the game fuels my desire to make this app, so please look into the game if it does interest you!
 
 ## Project Structure
 
@@ -77,14 +89,14 @@ This looks a little complicated, so let's explain some of the simpler items righ
 - LICENSE - A standard MIT license. Anyone is welcome to copy from this project.
 - README.md - Contains the markdown for the readme you can read on the repo.
 - .gitignore - A standard GitHub provided ignore list for Python projects. Ignores things like IDE project files.
-- requirements.txt - Contains the libraries used in the project. I have put only independant libraries. For example, Flask is not listed but is a dependancy of Dash so will be installed automatically if Dash is included.
+- requirements.txt - Contains the libraries used in the project. I have put only independant libraries. For example, Flask is not listed but is a dependancy of Dash so will be installed automatically.
 
 ### Dash
 
 - app.py - This is the entrypoint of the application. In other words, the code execution starts here. As it stands, this file will setup and run the Dash application, and also contains the frontend work for the framework of the navbar, header, and main content area.
-- pages - This *folder* contains the pages of this multipage app. Dash automatically searches a folder called pages and then searches for a variable called `layout`. It uses this when a page is requested. This is where the majority of our work will be.
-- components - This is a sort of "catch-all" folder for scripts that don't belong anywhere else. For a smaller size project like this, it works fine. It contains logic that is too extensive to put coveniently in a page script. It also contains `config.py`, while has data for some of the apps visual theme.
-- assets - This is another folder that page finds automatically. It is used to contain assets the app can load, such as pictures. It also contains `.css` files for styling.
+- pages/ - This *folder* contains the pages of this multipage app. Dash automatically searches a folder called pages and then searches for a variable called `layout`. It uses this when a page is requested. This is where the majority of our work will be.
+- components/ - This is a sort of "catch-all" folder for scripts that don't belong anywhere else. For a smaller size project like this, it works fine. It contains logic that is too extensive to put coveniently in a page script. It also contains `config.py`, while has data for some of the apps visual theme.
+- assets/ - This is another folder that page finds automatically. It is used to contain assets the app can load, such as pictures. It also contains `.css` files for styling.
 
 ### Database
 
@@ -94,11 +106,9 @@ These files are not used by the app, but are used to create and populate the dat
 
 **Note: Some code will be omitted or simplified where relevant for brevities sake. Please see the repo for a full understanding.**
 
-[Appshell, database, basics of styling/callbacks/components]
-
 ### Boilerplate
 
-The first thing we want to do is create the basic boilerplate for Dash  to run.
+The first thing we want to do is create the basic boilerplate for Dash to run.
 
 ### Appshell
 
@@ -114,11 +124,25 @@ We don't want to style the app too much at this point. However, setting up the s
 
 ## Home page
 
-(WIP)
+`(WIP)`
+
+A simple page to describe how to use the webapp and where to go next. Also contains any misc. information like the location of the git repo.
+
+`(WIP)`
 
 ## Potion Database
 
-[Test]
+This page is the crowning achievement of the app. It finds all possible potions based on what effects are desired. There are literally millions of possible combinations, and due to the app allowing custom ingredients to be added, this can grow even further. For context, the unmodded game has around 100 ingredients. If we assume every ingredient can be combined with every other ingredient, the total number of four ingredient potions (the vast majority) would be `100*99*98*97=94,109,400`. There are not nearly this many due to our assumption being very wrong, but it demonstrates the potential.
+
+### Frontend
+
+[Instructions, Origins, Effects list, Calculate, Table]
+
+### Backend
+
+[Non combos logic]
+
+[Combos logic]
 
 ## Potion Maker
 
