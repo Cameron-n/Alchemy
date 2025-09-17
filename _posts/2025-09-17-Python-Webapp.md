@@ -3,7 +3,8 @@ title: "Python Webapp (WIP)"
 layout: post
 ---
 
-[Picture of Page]
+![](https://github.com/Cameron-n/Alchemy/blob/master/assets/dash-test-frontcover.png)
+*Example page of the finished product*
 
 ## Introduction
 
@@ -42,7 +43,7 @@ In case you want to follow along, this is what I'll be using for the project.
 
 ## Project Structure
 
-The psychological benefit of structure and organisation makes the actually programming much more enjoyable. As well as the practical benefits like locataing information faster, it's just nicer to look at and work with.
+The psychological benefit of structure and organisation makes the actually programming much more enjoyable. As well as the practical benefits like locating information faster, it's just nicer to look at and work with.
 
 ### Overview
 
@@ -76,7 +77,7 @@ This looks a little complicated, so let's explain some of the simpler items righ
 - LICENSE - A standard MIT license. Anyone is welcome to copy from this project.
 - README.md - Contains the markdown for the readme you can read on the repo.
 - .gitignore - A standard GitHub provided ignore list for Python projects. Ignores things like IDE project files.
-- requirements.txt - Contains the libraries used in the project. I have put only independant libraries. For example, Flask is not listed but is a dependancy of Dash so will be installed automatically.
+- requirements.txt - Contains the libraries used in the project. I have put only independant libraries. For example, Flask is not listed but is a dependancy of Dash so will be installed automatically if Dash is included.
 
 ### Dash
 
@@ -88,3 +89,41 @@ This looks a little complicated, so let's explain some of the simpler items righ
 ### Database
 
 These files are not used by the app, but are used to create and populate the database. More on this later.
+
+## Project Setup
+
+**Note: Some code will be omitted or simplified where relevant for brevities sake. Please see the repo for a full understanding.**
+
+[Appshell, database, basics of styling/callbacks/components]
+
+### Boilerplate
+
+The first thing we want to do is create the basic boilerplate for Dash  to run.
+
+### Appshell
+
+Next, we want to setup the so-called "AppShell". The AppShell is a premade component that containers layout information for the navbar, header, and main content area.
+
+### Database
+
+For the app to be useful, it needs to do stuff with data. To do stuff with data, we first need to *have* data. Here we load the data and connect it to the app.
+
+### Styling
+
+We don't want to style the app too much at this point. However, setting up the standard format can allow us to edit things much easier when the times comes.
+
+## Home page
+
+(WIP)
+
+## Potion Database
+
+[Test]
+
+## Potion Maker
+
+[Test]
+
+## Ingredient Info
+
+(WIP)
