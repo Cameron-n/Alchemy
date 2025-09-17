@@ -63,6 +63,8 @@ We can then install Spyder, as well as the command prompt (cmd). I don't think t
 ### Git/Github --> OUTDATED. NOT REQUIRED
 ---
 
+Update: After spending some time experimenting and investigating, I realised that dbt does not support python scripts for MySQL and PostgreSQL. It only supports SQL scripts via community plugins.
+
 #### What they are:
 
 * Git is a tool that tracks changes to software, allowing you to roll-back changes, create multiple copies of software, and log why changes were made, among other things.
@@ -156,11 +158,13 @@ password: password
 ### dbt --> OUTDATED. NOT NEEDED.
 ---
 
+Update: See Git/GitHub above. I did use PostgreSQL and it has the same problems.
+
 #### What it is:
 
 Data Build Tool, the T of ELT. It allows SQL scripts to be run with ease, performing data transformations with simple SELECT statements. Airbyte uses it behind the scenes and we can use it in our transformations by reading files hosted from a Github repository. Python scripts can also be used as of dbt-core version 1.3.  
 
-Now, unfortunately, dbt-mysql (the adaptor to make dbt work with MySQL) requires an older version of dbt-core and so we cannot use Python scripts from Airbyte. If I were to redo this (and if you want to have a go) I would use PostgresSQL instead. Furthermore, the SQL script I want to use must be run *after* the Python script. So, we actually can't use dbt at all.
+Now, unfortunately, dbt-mysql (the adaptor to make dbt work with MySQL) requires an older version of dbt-core and so we cannot use Python scripts from Airbyte. If I were to redo this (and if you want to have a go) I would use PostgreSQL instead. Furthermore, the SQL script I want to use must be run *after* the Python script. So, we actually can't use dbt at all.
 
 Nevertheless, dbt is an extremely useful tool and we can still learn to use it and demonstrate its integration with Airbyte and Github. If I redo this project with PostgresSQL, I will update this section.
 
@@ -374,7 +378,7 @@ _Note, newer versions of dbt use `--select` instead of `--models`. We are intent
 
 You'll need to install SQLalchemy and pymysql using `python -m pip install sqlalchemy` and `python -m pip install pymysql` from the command prompt in Anaconda. These are libraries used to connect to the database. It is by pure, entertaining, coincidence that Alchemy is the mixing of ingredients in Morrowind, and also the name of the SQL library. This will include using pandas which I will not explain in detail. 
 
-We are going to use the following Python script: NEED TO UPDATE FOR POSTRESQL
+We are going to use the following Python script:
 
 ```python
 # MySQL python transformation
