@@ -112,7 +112,7 @@ These files are not used by the app, but are used to create and populate the dat
 
 The first thing we want to do is create the basic boilerplate for Dash to run.
 
-*app.py*
+*[app.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/app.py)*
 ```py
 from dash import Dash
 
@@ -134,7 +134,7 @@ Next, we want to setup the so-called "AppShell". The AppShell is a premade compo
 
 For the actual contents of the navbar, header, and main content area, I've chosen to define them elsewhere. The navbar and header are defined in the components folder in the files `navbar.py` and `header.py`. The main content area draws from the pages folder.
 
-*app.py*
+*[app.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/app.py)*
 ```py
 import dash
 import dash_mantine_components as dmc
@@ -163,7 +163,7 @@ Here, the `"height": 60` makes the header 60 pixels tall from the top of the scr
 
 For the navbar itself, it's contents are roughly defined as follows:
 
-*components/navbar.py*
+*components/[navbar.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/components/navbar.py)*
 ```py
 def Navbar():
     layout = dmc.Stack([
@@ -186,14 +186,13 @@ def Navbar():
     ])
 
     return layout
-
 ```
 
 In other words, it's just a stack of links made of buttons.
 
 Then, the header is as follows:
 
-*components/header.py*
+*components/[header.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/components/header.py)*
 ```py
 def Header():
     layout = dmc.Group([
@@ -205,16 +204,59 @@ def Header():
     ])
 
     return layout
-
 ```
 
 A burger refers to the three horizontal lines that turn into a cross, used to open menus. The three lines look like a burger, I guess... So, the header is one of those and then a link displayed as a "title". A title is simply a HTML H1-6 header element.
 
 The styling is largely omitted from the above code. We'll cover that later, so don't worry if you're following along and your version doesn't look the same.
 
+This covers the basic setup of a working dash app with a navbar and header. For the next step, we need to do some behind-the-scenes stuff to make it actually useful.
+
 ### Database
 
 For the app to be useful, it needs to do stuff with data. To do stuff with data, we first need to *have* data. Here we load the data and connect it to the app.
+
+I'll be using MySQL as the database due to PythonAnywhere only having MySQL and PostgreSQL, and PostgreSQL being a paid only option on the platform.
+
+[//]: # (Installation of database)
+
+We don't stricty need to develop the app locally if it's going to be hosted on the cloud, but it makes it much more convenient. You can download MySQL (the database) here, and MySQL Workbench (a GUI) here.
+
+Something, something, setup of the database.
+
+[//]: # (Explanation of ERD)
+
+There are three tables in my design: The main table, called "Ingredient", which contains each ingredients name, effects (in a "Yes/No" format), weight, and cost. I then added an "Effect" table to store information about each effect, mainly if it's a positive or negative effect (i.e. useful or harmful, strength vs poison, you can only use potions on yourself in Morrowind. This changes in later games in the series). I also added a "Tool" table to store some information about the tools used in alchemy. These are explained in the "Potion Maker" section below.
+
+[//]: # (Create tables)
+
+To create these tables (with no data) we run the following scripts. You can just copy and paste the contents and run them, or run it as a script. Very large scripts are better run as files as, I'm guessing, the graphical overhead of showing each lines success or failure is significant.
+
+```sql
+test
+```
+
+An except of the script is below.
+
+[//]: # (Explanation of data)
+
+The original data is thanks to ... and is located here. The database will then be extended with additional effects and ingredients, and also cleaned a little.
+
+[//]: # (Create data)
+
+The following three excerpts are from files that contain the needed data for each of the three tables.
+
+```sql
+test
+```
+
+```sql
+test
+```
+
+```sql
+test
+```
 
 ### Styling
 
