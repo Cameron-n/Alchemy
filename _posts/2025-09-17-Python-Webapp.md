@@ -78,6 +78,7 @@ The psychological benefit of structure and organisation makes the actual program
 │   ├── page two
 │   └── ...
 ├── .gitignore
+├── .env
 ├── LICENSE
 ├── README.md
 ├── app.py
@@ -92,6 +93,7 @@ This looks a little complicated, so let's explain some of the simpler items righ
 - README.md - Contains the markdown for the readme you can read on the repo.
 - .gitignore - A standard GitHub provided ignore list for Python projects. Ignores things like IDE project files.
 - requirements.txt - Contains the libraries used in the project. I have put only independant libraries. For example, Flask is not listed but is a dependancy of Dash so will be installed automatically.
+- .env - The environment file is intentionally a file excluded from the repo. It contains some configuration secrets, like passwords, that are only saved on the computer running the app. This is to prevent these secrets becoming public by not putting them in the code.
 
 ### Dash
 
@@ -307,19 +309,17 @@ After running those scripts to load in the data, that should be it for the direc
 
 ### Database, part 2
 
-WIP
+[//]: # (Explain SQL-Alchemy stuff. E.g. .env stuff, mirroring tables, basic syntax, connect via flask)
 
-### Styling
+### How Dash Works - Styling
 
-We don't want to style the app too much at this point. However, setting up the standard format can allow us to edit things much easier when the times comes.
+Finally, for the project setup, we explain how to style the app.
+
+[//]: # (.css files, theme, colors/fonts/etc)
 
 ## Home page
 
-`(WIP)`
-
 A simple page to describe how to use the webapp and where to go next. Also contains any misc. information like the location of the git repo.
-
-`(WIP)`
 
 ## Potion Database
 
@@ -327,18 +327,18 @@ This page is the crowning achievement of the app. It finds all possible potions 
 
 ### Frontend
 
-[Instructions, Origins, Effects list, Calculate, Table]
+[//]: # (Instructions, Origins, Effects list, Calculate, Table)
 
 ### Backend
 
-[Non combos logic]
+[//]: # (Non combos logic)
 
-[Combos logic]
+[//]: # (Combos logic)
 
 ## Potion Maker
 
-[Test]
+[//]: # (Test)
 
 ## Ingredient Info
 
-(WIP)
+## Add Ingredient
