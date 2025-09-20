@@ -5,7 +5,7 @@ layout: post
 
 ## Introduction
 
-![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/dash-test-frontcover.png)
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/dash-example.png)
 *Example page of the finished product*
 
 **Note: The associated repo can be found [here](https://github.com/Cameron-n/Morrowind-Alchemy), and the webapp [here](https://cameronn.eu.pythonanywhere.com/).**
@@ -16,7 +16,7 @@ In my previous project, I wanted to showcase my skills yet also enjoy myself. Th
 
 So, this project will be about building a webapp to showcase my new skills and vastly improve on that past project.
 
-Please note, I tend to explain things simply and either fully, or with enough detail to understand where to go next. However, due to the complexity of this project, some familiarity with general programming concepts is assumed. Also, details are covered as and when they are relevant, and many questions will likely be raised that would be out of scope to answer. That said, feel free to reach out to me for these questions. I can at least point you to the documentation!
+Please note, some familiarity with general programming concepts is assumed. Also, details are covered as and when they are relevant, and many questions will likely be raised that would be out of scope to answer. That said, feel free to reach out to me for these questions. I can at least point you to the documentation!
 
 ## Tech Stack
 
@@ -55,7 +55,7 @@ The vast majority of the project is not about Morrowind, so please don't be put 
 
 ## Project Structure
 
-The psychological benefit of structure and organisation makes the actually programming much more enjoyable. As well as the practical benefits like locating information faster, it's just nicer to look at and work with.
+The psychological benefit of structure and organisation makes the actual programming much more enjoyable. As well as the practical benefits like locating information faster, it's just nicer to look at and work with.
 
 ### Overview
 
@@ -102,7 +102,7 @@ This looks a little complicated, so let's explain some of the simpler items righ
 
 ### Database
 
-These files are not used by the app, but are used to create and populate the database. More on this later.
+- These files are not used by the app, but are used to create and populate the database. More on this later.
 
 ## Project Setup
 
@@ -128,9 +128,28 @@ app.run()
 
 If you run this then navigate to `localhost:8050`, you should see a lovely blank page. This appears to be the minimum requirements to create a Dash app. You have to create the app, give it a layout (in our case an empty list), then run the app.
 
+### How Dash Works - Layout
+
+A quick aside to explain how to create layouts with Dash and Dash Mantine Components. Dash components are functions. For example: 
+
+```py
+dmc.Button()
+```
+
+Dash components can be put inside other components. They are entered as a list, either as the first input, or to the input called `children`. In Dash Mantine Components there are a few layout specific components. Some common ones are:
+
+[//]: # (Add to this list of common layout components)
+
+```py
+dmc.Group([a,b,c]) # a, b, and c are arranged in a row
+dmc.Stack([a,b,c]) # a, b, and c are arranged in a column
+```
+
+There are a large number of components and function inputs. Please see the Dash and Dash Mantine Components documentation for a better understanding.
+
 ### Appshell
 
-Next, we want to setup the so-called "AppShell". The AppShell is a premade component that containers layout information for the navbar, header, and main content area. It comes from Dash Mantine Components.
+Next, we want to setup the so-called "AppShell". The AppShell is a premade component that container layout information for the navbar, header, and main content area. It comes from Dash Mantine Components.
 
 For the actual contents of the navbar, header, and main content area, I've chosen to define them elsewhere. The navbar and header are defined in the components folder in the files `navbar.py` and `header.py`. The main content area draws from the pages folder.
 
@@ -177,7 +196,7 @@ def Navbar():
         ),
         dmc.Anchor(
             dmc.Button("Potion Maker"),
-            href="/potion-maker"",
+            href="/potion-maker",
         ),
         dmc.Anchor(
             dmc.Button("Ingredient Info"),
@@ -208,6 +227,9 @@ def Header():
 
 A burger refers to the three horizontal lines that turn into a cross, used to open menus. The three lines look like a burger, I guess... So, the header is one of those and then a link displayed as a "title". A title is simply a HTML H1-6 header element.
 
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/dash-appshell.png)
+*Appshell*
+
 The styling is largely omitted from the above code. We'll cover that later, so don't worry if you're following along and your version doesn't look the same.
 
 This covers the basic setup of a working dash app with a navbar and header. For the next step, we need to do some behind-the-scenes stuff to make it actually useful.
@@ -218,45 +240,74 @@ For the app to be useful, it needs to do stuff with data. To do stuff with data,
 
 I'll be using MySQL as the database due to PythonAnywhere only having MySQL and PostgreSQL, and PostgreSQL being a paid only option on the platform.
 
-[//]: # (Installation of database)
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/MySQL_3.png)
+*MySQL Workbench*
 
-We don't stricty need to develop the app locally if it's going to be hosted on the cloud, but it makes it much more convenient. You can download MySQL (the database) here, and MySQL Workbench (a GUI) here.
+We don't stricty need to develop the app locally if it's going to be hosted on the cloud, but it makes it much more convenient. So, *optionally*, you can download MySQL (the database) [here](https://dev.mysql.com/downloads/installer/), and MySQL Workbench (a GUI) [here](https://dev.mysql.com/downloads/workbench/). It's possible that Workbench also installs the database itself. I don't remember.
 
-Something, something, setup of the database.
+Covering SQL in detail is out of scope, but we basically need to create a new schema, create the tables, and load in the data. The actual SQL required after this stage is minimal.
 
-[//]: # (Explanation of ERD)
+There are three tables in my design: 
+- The main table, called "Ingredient", which contains each ingredients name, effects (in a "Yes/No" format), weight, and cost.
+- I then added an "Effect" table to store information about each effect, mainly if it's a positive or negative effect (i.e. useful or harmful, e.g. 'Strength' vs 'Poison', you can only use potions on yourself in Morrowind. This changes in later games in the series).
+- I also added a "Tool" table to store some information about the tools used in alchemy.
 
-There are three tables in my design: The main table, called "Ingredient", which contains each ingredients name, effects (in a "Yes/No" format), weight, and cost. I then added an "Effect" table to store information about each effect, mainly if it's a positive or negative effect (i.e. useful or harmful, strength vs poison, you can only use potions on yourself in Morrowind. This changes in later games in the series). I also added a "Tool" table to store some information about the tools used in alchemy. These are explained in the "Potion Maker" section below.
+The purpose of each of these tables is explained in more detail later.
 
-[//]: # (Create tables)
+To create these tables (with no data) we run the following script. You can just copy and paste the contents and run them, or run it as a script. Very large scripts are better run as files as, I'm guessing, the graphical overhead of showing each lines success or failure is significant. Note the below is an *excerpt*. Please use the actual file from the repo.
 
-To create these tables (with no data) we run the following scripts. You can just copy and paste the contents and run them, or run it as a script. Very large scripts are better run as files as, I'm guessing, the graphical overhead of showing each lines success or failure is significant.
-
+*database/[create_tables.sql](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/database/create_tables.sql)*
 ```sql
-test
+CREATE TABLE `Ingredient` (
+  `Value` int NOT NULL,
+  `Weight` float NOT NULL,
+  `Ingredient` varchar(50) NOT NULL,
+  `Origin` varchar(20) DEFAULT NULL,
+  `First Effect` varchar(20) DEFAULT NULL,
+  `Weakness to Fire` int DEFAULT NULL,
+  -- ...
+  -- list shortened for brevity
+  -- ...
+  PRIMARY KEY (`Ingredient`)
+);
+CREATE TABLE `Effect` (
+  `Spell Effects` varchar(50) NOT NULL,
+  `Base Cost` float NOT NULL,
+  `Positive` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`Spell Effects`)
+);
+CREATE TABLE `Tool` (
+  `Name` varchar(50) NOT NULL,
+  `Quality` float NOT NULL,
+  `Type` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`Name`)
+);
 ```
 
-An except of the script is below.
-
-[//]: # (Explanation of data)
-
-The original data is thanks to ... and is located here. The database will then be extended with additional effects and ingredients, and also cleaned a little.
-
-[//]: # (Create data)
+The original data is located [here](https://docs.google.com/spreadsheets/d/1JQ391ET9lkKRoAdzQnkyIly7XCg2fNmtJqhpqmJitaM/edit?gid=1565250262#gid=1565250262). The database is designed to be extended with additional effects and ingredients. I've also cleaned some of the data as there are some errors (e.g. ingredients have the wrong effects, and replacing the 'x's with 1's and 0's).
 
 The following three excerpts are from files that contain the needed data for each of the three tables.
 
+*database/[ingredient_data.sql](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/database/ingredient_data.sql)*
 ```sql
-test
+INSERT INTO Ingredient(`Value`,`Weight`,`Ingredient`,`Weakness to Fire`,`Blind`,`Burden`,`Paralyze`,`Poison`,`Frost Damage`,`Damage Health`,`Drain Health`,`Drain Fatigue`,`Drain Magicka`,`Drain Strength`,`Drain Intelligence`,`Drain Willpower`,`Drain Agility`,`Drain Speed`,`Drain Endurance`,`Drain Personality`,`Drain Luck`,`Fortify Health`,`Fortify Fatigue`,`Fortify Magicka`,`Fortify Strength`,`Fortify Intelligence`,`Fortify Willpower`,`Fortify Agility`,`Fortify Speed`,`Fortify Endurance`,`Fortify Personality`,`Fortify Luck`,`Fortify Attack`,`Restore Health`,`Restore Fatigue`,`Restore Magicka`,`Restore Strength`,`Restore Intelligence`,`Restore Willpower`,`Restore Agility`,`Restore Speed`,`Restore Endurance`,`Restore Personality`,`Restore Luck`,`Detect Animal`,`Detect Enchantment`,`Detect Key`,`Dispel`,`Feather`,`Invisibility`,`Levitate`,`Light`,`Night Eye`,`Cure Blight Disease`,`Cure Common Disease`,`Resist Common Disease`,`Cure Paralyzation`,`Resist Paralysis`,`Cure Poison`,`Resist Poison`,`Resist Fire`,`Resist Frost`,`Resist Shock`,`Fire Shield`,`Frost Shield`,`Lightning Shield`,`Resist Magicka`,`Reflect`,`Spell Absorption`,`Telekinesis`,`Swift Swim`,`Water Breathing`,`Water Walking`,`Origin`,`First Effect`,`Sound`) VALUES (300,50,'Adamantium Ore',NULL,NULL,1,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,'Tribunal','Burden',NULL);
 ```
 
+*database/[effect_data.sql](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/database/effect_data.sql)*
 ```sql
-test
+INSERT INTO Effect(`Spell Effects`,`Base Cost`,`Positive`) VALUES ('Blind',1,NULL);
 ```
 
+*database/[tool_data.sql](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/database/tool_data.sql)*
 ```sql
-test
+INSERT INTO Tool(`Name`,`Quality`,`Type`) VALUES ('Apprentice''s Alembic',0.5,'Alembic');
 ```
+
+After running those scripts to load in the data, that should be it for the direct SQL stuff. We still do, however, need to link the app with the database, but for that we'll be strictly using Python.
+
+### Database, part 2
+
+WIP
 
 ### Styling
 
