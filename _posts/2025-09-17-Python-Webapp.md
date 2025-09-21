@@ -603,6 +603,15 @@ def Navbar():
     return layout
 ```
 
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/dash-navbar-normal.png)
+*normal*
+
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/dash-navbar-bigger.png)
+*bigger, for e.g. tablets*
+
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/dash-navbar-scrollable.png)
+*scrollable, for e.g. phones*
+
 Now the navbar has some styling written in Python, and uses the styling of the `.css` file. When the screen changes size, the buttons and font should change size. The navbar should also now be scrollable on very small screens. Try it out on different devices, or by resizing the window.
 
 This covers the basics of how to style components.
