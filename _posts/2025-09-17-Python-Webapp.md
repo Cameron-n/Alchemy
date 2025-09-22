@@ -321,6 +321,8 @@ INSERT INTO Effect(`Spell Effects`,`Base Cost`,`Positive`) VALUES ('Blind',1,NUL
 INSERT INTO Tool(`Name`,`Quality`,`Type`) VALUES ('Apprentice''s Alembic',0.5,'Alembic');
 ```
 
+Please note each of these is one row of data. The full files are longer, especially the ingredient one.
+
 After running those scripts to load in the data, that should be it for the direct SQL stuff. We still do, however, need to link the app with the database, but for that we'll be strictly using Python.
 
 ### Database, part 2
@@ -616,28 +618,258 @@ Now the navbar has some styling written in Python, and uses the styling of the `
 
 This covers the basics of how to style components.
 
-## Home page
+## Home page (WIP)
 
 A simple page to describe how to use the webapp and where to go next. Also contains any misc. information like the location of the git repo.
 
 ## Potion Database
 
-This page is the crowning achievement of the app. It finds all possible potions based on what effects are desired. There are literally millions of possible combinations, and due to the app allowing custom ingredients to be added, this can grow even further. For context, the unmodded game has around 100 ingredients. If we assume every ingredient can be combined with every other ingredient, the total number of four ingredient potions (the vast majority) would be `100*99*98*97=94,109,400`. There are not nearly this many due to our assumption being very wrong, but it demonstrates the potential.
+This page is the crowning achievement of the app. It finds all possible potions based on what effects are desired. There are literally millions of possible combinations, and due to the app allowing custom ingredients to be added, this can grow even further. 
+
+For context, the unmodded game has around 100 ingredients. If we assume every ingredient can be combined with every other ingredient, the total number of four ingredient potions (the vast majority) would be `100*99*98*97/(4*3*2*1)=3,921,225`. There are not quite this many due to our assumption being wrong, but it demonstrates the infeasibility of searching every combination by hand.
 
 ### Frontend
 
 [//]: # (Instructions, Origins, Effects list, Calculate, Table)
 
+The frontend is made up of a few components. First, we have some text to explain how the page works:
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+text = """
+1. Select the effects you want to include in the resulting potions.
+2. Press Calculate to find these potions.
+3. Limit the origins of the ingredients to include or exclude mods, dlcs, or base game ingredients.
+"""
+
+explain_title = dmc.Title("Instructions", order=3)
+explain_text = dmc.Text(text, style={"white-space": "pre-wrap"})
+explain_stack = dmc.Stack([
+    explain_title,
+    explain_text,
+],
+    gap=0
+)
+```
+
+Putting the title and the text in a stack helps keep things aligned. The `order` parameter controls what type of html header we use, in this case H3. The css parameter `white-space: pre-warp` keeps the newline content of the string. Otherwise, it would ignore these and show as one long line of text only going on to new lines when the screen is not wide enough. The `gap=0` reduces the gap between the elements of the stack.
+
+Then, we have a button to limit the origin of the ingredients (e.g. from the base game, offical extra content, or fan made extra content):
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+from components.data_access import DF_INGREDIENTS
+
+data_origin = DF_INGREDIENTS["Origin"].unique()
+origin_selecter = dmc.MultiSelect(label="Origins", data=data_origin,
+                                  w=200, id="data-origins")
+```
+
+Here, we can **finally** see the use of the database. The app loads in the contents of `DF_INGREDIENTS`, which is essentially the ingredient table in the database. Since it is a pandas dataframe, we can use the `unique` method on the origins column to get a list of all the origins. This is useful as the origins list may grow as ingredients are added from different sources. We then assign this data to a `MultiSelect` component. This allows, as the name implies, a selection of multiple options from a list. Note we've also given it an id, which will become relevant soon.
+
+Next, a set of eight (8) selection boxes that allow a selection from a scrollable list:
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+effects_list = list(DF_EFFECTS["Spell Effects"])
+
+effects = dmc.Stack([
+    dmc.Group([
+        dmc.Group([
+            dmc.Select(label="Effect 1",
+                       data=effects_list,
+                       value="",
+                       searchable=True,
+                       id="Effect 1"),
+            dmc.Select(label="Effect 2",
+                       data=effects_list,
+                       value="",
+                       searchable=True,
+                       id="Effect 2"),
+        ], justify="center", wrap="nowrap"),
+        dmc.Group([
+            dmc.Select(label="Effect 3",
+                       data=effects_list,
+                       value="",
+                       searchable=True,
+                       id="Effect 3"),
+            dmc.Select(label="Effect 4",
+                       data=effects_list,
+                       value="",
+                       searchable=True,
+                       id="Effect 4"),
+        ], justify="center", wrap="nowrap"),
+    ], justify="center"),
+    dmc.Group([
+        dmc.Group([
+            dmc.Select(label="Effect 5",
+                       data=effects_list,
+                       value="",
+                       searchable=True,
+                       id="Effect 5"),
+            dmc.Select(label="Effect 6",
+                       data=effects_list,
+                       value="",
+                       searchable=True,
+                       id="Effect 6"),
+        ], justify="center", wrap="nowrap"),
+        dmc.Group([
+            dmc.Select(label="Effect 7",
+                       data=effects_list,
+                       value="",
+                       searchable=True,
+                       id="Effect 7"),
+            dmc.Select(label="Effect 8",
+                       data=effects_list,
+                       value="",
+                       searchable=True,
+                       id="Effect 8"),
+        ], justify="center", wrap="nowrap")
+    ], justify="center")
+])
+```
+
+These are for choosing what effects you want in the calculated potions. Since each ingredient has up to 4 effects, up to 4 ingredients can be mixed together, and the effects have to be paired up with another ingredient, we have `16/2=8` total possible effects.
+
+The structure can seem a bit complicated as its designed to look good on a range of devices. It is a stack of 2 groups, the first group containing the effects 1 to 4, the second 5 to 8. Within each group, there are 2 groups. These groups contain pairs of effects, e.g. effects 1 and 2, effects 3 and 4, etc. The outer groups are allowed to "wrap", that is, go onto a new line if there is not sufficient horizontal space. The inners groups, the pairs, are not allowed to wrap. This keeps the pairs together to stop unpleasant layouts like a differing number of selects on each line, while allowing pairs to go onto new lines, and while stopping all 8 selects from appearing on one line even if there is enough space (e.g. wide-screens).
+
+Next, a button to calculate the potions:
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+calc_button = dmc.Button("Calculate", id="Effect Button")
+```
+
+There really isn't much to say about this. Again, the id will become relevant soon.
+
+Next, a grouping to gather all these elements together:
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+effects_with_button = dmc.Stack([
+    explain_stack,
+    origin_selecter,
+    effects,
+    calc_button,
+],
+    align="center"
+)
+```
+
+This keeps the components aligned with each other for a good looking layout. If we want to swap things around, it also helps grouping related components together in case you want to move all of them. Conceptually, it also helps me see a high-level view of the overall layout without having to know the details of each collection of components.
+
+Next, a table to put the resulting potions:
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+head = dmc.TableThead(
+    dmc.TableTr(
+        [
+            dmc.TableTh("Ingredient 1"),
+            dmc.TableTh("Ingredient 2"),
+            dmc.TableTh("Ingredient 3"),
+            dmc.TableTh("Ingredient 4"),
+            dmc.TableTh("Effect 1"),
+            dmc.TableTh("Effect 2"),
+            dmc.TableTh("Effect 3"),
+            dmc.TableTh("Effect 4"),
+            dmc.TableTh("Effect 5"),
+            dmc.TableTh("Effect 6"),
+            dmc.TableTh("Effect 7"),
+            dmc.TableTh("Effect 8"),
+        ]
+    )
+)
+
+body = dmc.TableTbody(id="Effect Table")
+
+caption = dmc.TableCaption("End of Table")
+
+potions_table = dmc.Table([head, body, caption],
+                          withTableBorder=True,
+                          highlightOnHover=True,
+                          highlightOnHoverColor="myColors.8",
+                          striped=True,
+                          )
+potions_table = dmc.TableScrollContainer(
+    potions_table, minWidth=0, maxHeight=425, type="native"
+)
+
+loading_overlay = dmc.LoadingOverlay(id="data-loader-overlay")
+
+potions_table = dmc.Box([
+    loading_overlay,
+    potions_table,
+], pos="relative")
+```
+
+Tables are a fairly big component, with a lot of boilerplate syntax. Hopefully the general idea is self-explanatory. `head` is for the header, `body` is for the rest of the table, `caption` is for the caption at the bottom of the table. The `TableScrollContainer` is used to add horizontal and vertical scrolling to the table if it exceeds a certain size. The `LoadingOverlay` can display a loading sign on top of another element to e.g. indicate a process is ongoing. It overlays the nearest element in the layout that can be overlayed.
+
+And, finally, a grouping of all the elements:
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+layout = dmc.Stack([
+    effects_with_button,
+    potions_table,
+])
+```
+
+It's somewhat long, but not too complicated. I hope, anyway!
+
+You might notice, if you run the app, that none of these inputs actually *do* anything. And why would they? We haven't written any code for them!
+
+### How Dash Works - Callbacks
+
+This is where the concept of callbacks comes into play. Components in Dash have ids and other parameters. Callbacks are functions that take a components id and a parameter from that component as input or output. For inputs, the callback is called when that parameter of that component changes. For outputs, what the function returns is sent to that parameter of that component.
+
+Let's look at how to cause the loading overlay to appear when the table is updating.
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+@callback(
+    Output("data-loader-overlay", "visible"),
+    Input("Effect Button", "n_clicks"),
+)
+def enable_loader(n_clicks):
+    """Enable loader on Calculate button click"""
+    return True
+```
+
+We see here that the input, the thing the callback will be called by, is the `n_clicks` parameter of the component with id `Effect Button`. This component is the button we created to calculate potions, and `n_clicks` is the number of times the button has been clicked. The output goes to the overlay, identified by the id `data-loader-overlay`, and the output of the function changes the `visible` property of this component. Finally, the function itself merely returns `True`, so clicking the button will cause the overlay to appear. Later on, we use another callback to remove the overlay once the table contents have been calculated.
+
 ### Backend
 
 [//]: # (Non combos logic)
 
+The only other callback in this script is used to cause the calculate button to calculate the possible potions from the effects selections, and update the table accordingly. It's a bit long, and could be broken down into smaller parts, or written better.
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+
+```
+
+[Some text here].
+
 [//]: # (Combos logic)
+
+The callback function is already quite long, and it's helpful to divide work into parts for things like reusability, debugging small parts, and easier maintenance of the code. While the callback function formats the input and output, and updates the table, a seperate function actually does the "maths" to calculate the possible potions. I've chosen to put it into the components folder as it doesn't neatly belong anywhere else. Another options, by the way, is to put *folders* in the pages folder, and then put multiple scripts in those. That may be a better idea.
+
+*components/[combos.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/components/combos.py)*
+```py
+
+```
+
+[Some text here].
+
+After all that effort, we choose some effects and press calculate. With any luck, the correct list of possible potions appears, nicely formatted in a presentable way. It's funny how simple the result seems, yet how much work is required to get it to a reasonable state. It's not just the "maths", but the presentation, "minor" tweaks, and endless bug fixing for stuff that really should just work...
+
+Anyway, onto the next page.
 
 ## Potion Maker
 
 [//]: # (Test)
 
-## Ingredient Info
+## Ingredient Info (WIP)
 
 ## Add Ingredient
