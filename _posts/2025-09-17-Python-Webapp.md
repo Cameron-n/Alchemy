@@ -825,6 +825,8 @@ This is where the concept of callbacks comes into play. Components in Dash have 
 
 Let's look at how to cause the loading overlay to appear when the table is updating.
 
+[//]: # (Replace with an example and move this one to the Backend section?)
+
 *pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
 ```py
 @callback(
@@ -836,22 +838,319 @@ def enable_loader(n_clicks):
     return True
 ```
 
-We see here that the input, the thing the callback will be called by, is the `n_clicks` parameter of the component with id `Effect Button`. This component is the button we created to calculate potions, and `n_clicks` is the number of times the button has been clicked. The output goes to the overlay, identified by the id `data-loader-overlay`, and the output of the function changes the `visible` property of this component. Finally, the function itself merely returns `True`, so clicking the button will cause the overlay to appear. Later on, we use another callback to remove the overlay once the table contents have been calculated.
+We see here that the input, the thing the callback will be called by, is the `n_clicks` parameter of the component with id `Effect Button`. This component is the button we created to calculate potions, and `n_clicks` is the number of times the button has been clicked. The output goes to the overlay, identified by the id `data-loader-overlay`, and the output of the function changes the `visible` property of this component. Finally, the function itself merely returns `True`, so clicking the button will cause the overlay to appear. In a different callback, we remove the overlay once the table contents have been calculated.
 
 ### Backend
 
 [//]: # (Non combos logic)
 
-The only other callback in this script is used to cause the calculate button to calculate the possible potions from the effects selections, and update the table accordingly. It's a bit long, and could be broken down into smaller parts, or written better.
+The only other callback in this script is used to cause the calculate button to calculate the possible potions from the effects selections, and update the table accordingly. It's a bit long, so I'll explain it in parts.
+
+First, we have to define the inputs and outputs. There's also another idea called `State`. This is like `Input` in that the function reads in this value. However, it is unlike input in that it doesn't trigger the function. The function is only aware of the parameters of state, hence the name.
 
 *pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
 ```py
+@callback(
+    Output("Effect Table", "children"),
+    Output("data-loader-overlay", "visible", allow_duplicate=True),
+    Input("Effect Button", "n_clicks"),
+    State("data-origins", "value"),
+    State("Effect 1", "value"),
+    State("Effect 2", "value"),
+    State("Effect 3", "value"),
+    State("Effect 4", "value"),
+    State("Effect 5", "value"),
+    State("Effect 6", "value"),
+    State("Effect 7", "value"),
+    State("Effect 8", "value"),
+    prevent_initial_call=True
+)
+def calculate_potions(
+        n_clicks,
+        origins,
+        value_1,
+        value_2,
+        value_3,
+        value_4,
+        value_5,
+        value_6,
+        value_7,
+        value_8
+        ):
 
+    # ...
+    # ... code goes here ...
+    # ...
+```
+
+The input is the clicking of the calculate button. The outputs are the tables content, and the `visible` property of the overlay. The states are simply the values of the origin select, and the effect selects. What are the `allow_duplicate=True` and `prevent_initial_call=True`? Well the later stops the callback from running on app startup. The former allows multiple callbacks to reference the same output. We'll get back to this idea soon.
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+@callback(
+    # ...
+)
+def calculate_potions(
+        # ...
+        ):
+
+    time.sleep(0.1)
+
+    if not (value_1 or value_2 or value_3 or value_4 or
+            value_5 or value_6 or value_7 or value_8):
+        return [], False
+
+    # ... code below ...
+```
+
+Oh, well that's quite simple. We wait a short time, then check if the effect selects are all empty. If they are, we simply return an empty list (for the table) and turn off the loading overlay. Of course, we still have to deal with *slightly* more interesting case when the effects are all empty. But, why the `time.sleep`? The answer is that we cannot guarantee the order of the callbacks. This is the reason we have to stop the initial call. When the app starts, we don't know which callback will trigger first. More importantly, it's not completly clear which callback will trigger first *in general*. It might seem that, since this callback will do some number crunching logic, it will trigger last. However, playing around with the app when there are no effects selected makes it quite clear that this callback is fast enough to be triggered *first*. The consequence is the loading overlay is first set to false by this callback, *then* set true by the other callback. So, the user sees an infinite loading icon and does not know if it's actually doing something (and it's not). This solution is not necessarily foolproof or optimal, but it seems to maintain the order so far.
+
+Okay, now it gets complicated. We don't want this callback to calculate the potion maths directly. It will call a seperate function for that. But, we want it to send the correctly formatted information to that function, and turn that functions output into the correct format for the table. First, the input formatting.
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+@callback(
+    # ...
+)
+def calculate_potions(
+        # ...
+        ):
+
+    # ... code above ...
+
+    restrictions = []
+    for i in [value_1, value_2, value_3, value_4,
+              value_5, value_6, value_7, value_8]:
+        if i not in [None, "", []]:
+            restrictions.append(i)
+
+    # Limit to selected origins
+    origin_limited = DF_INGREDIENTS.copy()
+    if origins:
+        origin_limited = origin_limited[origin_limited["Origin"].isin(origins)]
+
+    potions_1 = origin_limited
+    potions_2 = potion_combinations(potions_1, restrictions)  # pairs
+    potions_3 = potion_combinations(potions_2, restrictions)  # triplets
+    potions_4 = potion_combinations(potions_3, restrictions)  # linked quads
+    potions_2_2 = potion_quads(potions_2, restrictions) # 2 unlinked pairs
+    potions = pd.concat([potions_2, potions_3, potions_4, potions_2_2])
+    potions = potions.reset_index().drop("index", axis=1)
+
+    # ... code below ...
+```
+
+The `restrictions` variable stores the values of the effect selects (that are not empty). This is later fed to our custom `potion_combainations` function. It's purpose is to tell that function what effects we want to restrict the outputs to.
+
+Next, we want to only include ingredients from the origins specified. We need to copy the whole list, stored in `DF_INGREDIENTS`, and make a copy to avoid the pitfalls of assigning multiple variables to the same object without realising (i.e. mutable vs immutable objects). We then simply limit the dataframe by rows with the column `Origin` containing values in selecting in the origins multiselect.
+
+The last few lines are simply calling the `potion_combinations` function in the necessary ways. We'll cover how it works in the next titled section. The basic idea is that we can build potions with more ingredients from previously calculated potions. We can have 2 ingredients (pairs), 3 (triplets), or 4 (quadruplets). Due to the way the function works, it does not account for the case where 2 pairs of ingredients share no effects between them. This 'edge' case, what I've called "2 unlinked pairs", makes up the vast majority of potions. The last two lines simply merge all these combinations together and, due to the sequential nature of the input, resets the index (i.e. sets the first row to "0", the second to "1", etc).
+
+Once we've got the combinations from the functions, we need to convert them into a form that works for the table. There are a few tasks we have.
+
+- I'd like the potions to be in descending order of number of positive effects, and then ascending order of negative effects. So, the "most positive, least negative" potion comes first.
+- The way `potion_combinations` works, it includes every potion with at least one of the effects. This is for practical reasons since we need this information to builds e.g. triplets from pairs, but for the table we want only potions with **all** the effects.
+- Format the final results for the table rows
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+@callback(
+    # ...
+)
+def calculate_potions(
+        # ...
+        ):
+
+    # ... code above ...
+
+    # We remove the ingredients columns to do maths on
+    # the effect columns. We'll save the ingredients to
+    # add them back on later
+    ingredients_columns = ["Ingredient", "Ingredient 2",
+                           "Ingredient 3", "Ingredient 4"]
+    shared_columns = potions.columns.intersection(ingredients_columns)
+    potions_ingredients = potions[shared_columns]
+    potions = potions.drop(ingredients_columns, axis=1, errors='ignore')
+
+    # potion_combinations returns all combinations where each
+    # ingredient has at least one of the restrictions. We need
+    # to further limit this to combinations where every restriction
+    # is included
+    ingredients_restrictions = pd.Series([True for _ in range(len(potions))])
+    for i in restrictions:
+        ingredients_restrictions = ingredients_restrictions & (potions[i] == 2)
+    potions = potions[ingredients_restrictions]
+
+    # ... code below ...
+```
+
+Here, we first split the potions into ingredient names, like "Adamantium Ore", and the effects like "Reflect". This is because we still have to do some transformations, but only on the effects. The `errors='ignore'` is to continue the program even if the pandas drop operation doesn't find some of the listed columns. This is because e.g. a potion pair will have no "Ingredient 3" column as it only has two ingredients.
+
+Next, we have to understand the underlying data returned by `potion_combinations`. For the selected effects, each entry for each row is either `0`, `1`, or `2`. This is the number of times that effect appears across the ingredients (capped at 2) included in that row. In other words, `0` means it does not have an effect, `1` also means the potion does not have the effect but one of the ingredients does, and `2` means it does have that effect. We need to make sure every effect is included. In other words, that `2`'s appear in each column.
+
+Now, we need to replace the numbers with the effect names.
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+@callback(
+    # ...
+)
+def calculate_potions(
+        # ...
+        ):
+
+    # ... code above ...
+
+    potions = potions.where(potions < 2, potions.columns.to_series(), axis=1)
+
+    # Get the ingredient names indexed correctly after the .where operation
+    potions_ingredients = potions.join(potions_ingredients)[shared_columns]
+    potions_ingredients = potions_ingredients.fillna('')
+    potions = potions.to_numpy()
+
+    # ... code below ...
+```
+
+We replace values of 2 (or bigger, but there aren't any) with the value of the column it's in. Then, we update the ingredient names so that they corrospond with the effects list. E.g., if the row 1 was removed, we need to remove row 1 of the ingredients variable as well. We have to make sure that, even for potion pairs and triplets, that all four ingredient names are included. If they're empty, we use an empty string. This is because the table will display columns for all four ingredients and so we need values even if they are empty.
+
+Now, we need to do a similar thing for the effects.
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+@callback(
+    # ...
+)
+def calculate_potions(
+        # ...
+        ):
+
+    # ... code above ...
+
+    potion_as_words = []
+    for index, potion in enumerate(potions):
+
+        # Remove effects not part of the ingredients (0)
+        # or in only an ingredient but not the other (1)
+        potion = potion[potion != 0]
+        potion = potion[potion != 1]
+        potion_as_words.append(potion)
+
+    # ... code below ...
+```
+
+This removes the `0`'s and `1`'s that are still lingering around. These would otherwise display in the table under the effects headings. This should just leave what was the `2`'s, which we have already replaced with the actual effect names.
+
+Now, to sort the potions. Here, it gets a little complicated. We haven't yet combined the ingredient names with the effects. So, we need to sort each individually, then combine the results. 
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+@callback(
+    # ...
+)
+def calculate_potions(
+        # ...
+        ):
+
+    # ... code above ...
+
+    # Sort by +ve effects descending, -ve effects ascending
+    potion_sorted = []
+    for i in potion_as_words:
+        total = len(i)
+        num_pos = 0
+        for j in i:
+            num_pos -= DF_EFFECTS[DF_EFFECTS["Spell Effects"] == j]["Positive"].iloc[0]
+        for j in range(8 - len(i)):
+            i = np.append(i, '')
+        part_one = np.append(total+num_pos, i)
+        potion_sorted.append(np.append(num_pos, part_one))
+        
+    ingredients_sorted = []
+    potions_ingredients = potions_ingredients.to_numpy()
+    for i in potions_ingredients:
+        for j in range(4-len(i)):
+            i = np.append(i, '')
+        ingredients_sorted.append(i)
+    
+    if potion_sorted != []:
+        potion_sorted = np.append(ingredients_sorted, potion_sorted, axis=1)
+
+    # ... code below ...
+```
+
+The first `for` loop uses the `DF_EFFECTS` variable, effectively a copy of the Effects table from the database, to work out the number of positive and negative effects for each row of the effects dataframe. [HERE]
+
+*pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
+```py
+@callback(
+    # ...
+)
+def calculate_potions(
+        # ...
+        ):
+
+    # ... code above ...
+
+    dtype = [('ing 1', object),
+             ('ing 2', object),
+             ('ing 3', object),
+             ('ing 4', object),
+             ('pos', float),
+             ('neg', float),
+             ('e1', object),
+             ('e2', object),
+             ('e3', object),
+             ('e4', object),
+             ('e5', object),
+             ('e6', object),
+             ('e7', object),
+             ('e8', object)]
+    potion_sorted = [tuple(i) for i in potion_sorted]
+    potion_sorted = np.array(potion_sorted, dtype=dtype)
+    potion_sorted = np.sort(potion_sorted, order=['pos', 'neg'])
+
+    potion_data = []
+    for index, potion in enumerate(potion_sorted):
+        new_row = {
+            "Ingredient 1": potion[0],
+            "Ingredient 2": potion[1],
+            "Ingredient 3": potion[2],
+            "Ingredient 4": potion[3],
+            "Effect 1": potion[4+2],
+            "Effect 2": potion[5+2],
+            "Effect 3": potion[6+2],
+            "Effect 4": potion[7+2],
+            "Effect 5": potion[8+2],
+            "Effect 6": potion[9+2],
+            "Effect 7": potion[10+2],
+            "Effect 8": potion[11+2],
+        }
+        potion_data.append(new_row)
+
+    rows = [
+        dmc.TableTr([
+            dmc.TableTd(potion_datum["Ingredient 1"]),
+            dmc.TableTd(potion_datum["Ingredient 2"]),
+            dmc.TableTd(potion_datum["Ingredient 3"]),
+            dmc.TableTd(potion_datum["Ingredient 4"]),
+            dmc.TableTd(dmc.Text(potion_datum["Effect 1"], c="red" if DF_EFFECTS[DF_EFFECTS["Spell Effects"]==(potion_datum["Effect 1"] or "Drain Fatigue")]["Positive"].iloc[0]==0 else "green")),
+            dmc.TableTd(dmc.Text(potion_datum["Effect 2"], c="red" if DF_EFFECTS[DF_EFFECTS["Spell Effects"]==(potion_datum["Effect 2"] or "Drain Fatigue")]["Positive"].iloc[0]==0 else "green")),
+            dmc.TableTd(dmc.Text(potion_datum["Effect 3"], c="red" if DF_EFFECTS[DF_EFFECTS["Spell Effects"]==(potion_datum["Effect 3"] or "Drain Fatigue")]["Positive"].iloc[0]==0 else "green")),
+            dmc.TableTd(dmc.Text(potion_datum["Effect 4"], c="red" if DF_EFFECTS[DF_EFFECTS["Spell Effects"]==(potion_datum["Effect 4"] or "Drain Fatigue")]["Positive"].iloc[0]==0 else "green")),
+            dmc.TableTd(dmc.Text(potion_datum["Effect 5"], c="red" if DF_EFFECTS[DF_EFFECTS["Spell Effects"]==(potion_datum["Effect 5"] or "Drain Fatigue")]["Positive"].iloc[0]==0 else "green")),
+            dmc.TableTd(dmc.Text(potion_datum["Effect 6"], c="red" if DF_EFFECTS[DF_EFFECTS["Spell Effects"]==(potion_datum["Effect 6"] or "Drain Fatigue")]["Positive"].iloc[0]==0 else "green")),
+            dmc.TableTd(dmc.Text(potion_datum["Effect 7"], c="red" if DF_EFFECTS[DF_EFFECTS["Spell Effects"]==(potion_datum["Effect 7"] or "Drain Fatigue")]["Positive"].iloc[0]==0 else "green")),
+            dmc.TableTd(dmc.Text(potion_datum["Effect 8"], c="red" if DF_EFFECTS[DF_EFFECTS["Spell Effects"]==(potion_datum["Effect 8"] or "Drain Fatigue")]["Positive"].iloc[0]==0 else "green")),
+        ])
+        for potion_datum in potion_data
+    ]
+
+    return rows, False
 ```
 
 [Some text here].
 
-[//]: # (Combos logic)
+### Potion Maths
 
 The callback function is already quite long, and it's helpful to divide work into parts for things like reusability, debugging small parts, and easier maintenance of the code. While the callback function formats the input and output, and updates the table, a seperate function actually does the "maths" to calculate the possible potions. I've chosen to put it into the components folder as it doesn't neatly belong anywhere else. Another options, by the way, is to put *folders* in the pages folder, and then put multiple scripts in those. That may be a better idea.
 
