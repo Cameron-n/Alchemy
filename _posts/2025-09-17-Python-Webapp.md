@@ -1040,7 +1040,7 @@ def calculate_potions(
 
 This removes the `0`'s and `1`'s that are still lingering around. These would otherwise display in the table under the effects headings. This should just leave what was the `2`'s, which we have already replaced with the actual effect names.
 
-Now, to sort the potions. Here, it gets a little complicated. We haven't yet combined the ingredient names with the effects. So, we need to sort each individually, then combine the results. 
+We haven't yet combined the ingredient names with the effects or made sure each row is of the same length regardless of the number of ingredients or effects.
 
 *pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
 ```py
@@ -1078,7 +1078,9 @@ def calculate_potions(
     # ... code below ...
 ```
 
-The first `for` loop uses the `DF_EFFECTS` variable, effectively a copy of the Effects table from the database, to work out the number of positive and negative effects for each row of the effects dataframe. [HERE]
+The first `for` loop uses the `DF_EFFECTS` variable, effectively a copy of the Effects table from the database, to work out the number of positive and negative effects for each row of the effects dataframe. We also adds some empty strings on the end to fill out any empty effects for the table (e.g. not all potions have eight effects). Then, we also fill out the empty ingredient names with empty strings. Finally, we combine the two together. 
+
+The data is now almost ready, we just need to sort them and put them into the table.
 
 *pages/[potion_database.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_database.py)*
 ```py
@@ -1148,7 +1150,11 @@ def calculate_potions(
     return rows, False
 ```
 
-[Some text here].
+The code here is kind of long, but that's just because of the table having twelve columns. I could likely shorten this using some sort of function or loop. The first block finally sorts the potions by number of positive effects descending, and then number of negative effects ascending. For some reason, numpy required explicit statements of the datatypes to correctly sort the rows.
+
+The maining code, while rather long, is just inputting each rows data into the correct column and adding a little color. Positive effects are shown as green, negative as red. The reason for the `+2`'s in the `new_row` variables is to factor in the positive and negative columns added.
+
+We lastly return the data to the table, and remove the loading overlay.
 
 ### Potion Maths
 
