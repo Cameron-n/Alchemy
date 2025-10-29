@@ -3,6 +3,27 @@ title: "Python Webapp (WIP)"
 layout: post
 ---
 
+## Executive Summary
+
+_If you just want a quick overview, this section is for you. See the live website [here](https://cameronn.eu.pythonanywhere.com/)._
+
+In this project, I created a webapp hosted on `PythonAnywhere` and written primarily in `Python`. 
+
+The frontend is built using the `Dash` library which has abstrations over `HTML` objects and uses `React.js` for the Javascript elements under-the-hood.
+
+On the backend, a `MySQL` database holds some data that the app connects to using `Flask` and `SQLAlchemy`.
+
+The app itself is designed to explore potions in the computer game Morrowind. The basic idea is that there are several hundred thousand combinations of ingredients to make potions and searching through all of them to find specific properties is unrealistic. Therefore, I implement some helpful features to reduce any manual work.
+
+- A `Home` page to introduce the app.
+- A `Potion Database` page. This is the most important page and allows a search through the possible potions. Behind-the-scenes, it takes ingredients stored in the database and calculates all valid combinations.
+- A `Potion Maker` page that replicates the potion crafting menu from the game so that specific properties of potions can be found without opening the game. This is helpful when discovering interesting potions from the above page.
+- An `Ingredient Info` that more or less displays the information in the database for the selected ingredient. It contains some details about cost, weight, and location that are not displayed elsewhere.
+
+This project not only demonstrates a full-stack development, but shows my end-to-end skills to bring a project to life, from creating and carrying out requirements to managing code via git/GitHub and even some cloud and Linux work for hosting.
+
+I hope this project intrigues you, either as an avid developer or as a fan of Morrowind. Continue reading for a more detailed description of the work involved.
+
 ## Introduction
 
 ![](https://raw.githubusercontent.com/Cameron-n/Alchemy/master/assets/dash-example.png)
