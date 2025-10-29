@@ -31,7 +31,7 @@ I hope this project intrigues you, either as an avid developer or as a fan of Mo
 
 **Note: The associated repo can be found [here](https://github.com/Cameron-n/Morrowind-Alchemy), and the webapp [here](https://cameronn.eu.pythonanywhere.com/).**
 
-During the first year of my software apprenticeship, I heavily used a Python library called Dash to create a dashboard for the company. As I used the library more, and learnt surrounding skills and technologies, I realised that, despite it's name, it can be used to create whole webapps, not just dashboards.
+During the first year of my software apprenticeship, I heavily used a Python library called Dash to create a dashboard for the company. As I used the library more, and learnt surrounding skills and technologies, I realised that, despite its name, it can be used to create whole webapps, not just dashboards.
 
 In my previous project, I wanted to showcase my skills yet also enjoy myself. That's why I focused on data from one of my favourite games, Morrowind. My technical skills have improved since that project (almost two years ago!), and I'm still in love with the world of Morrowind.
 
@@ -88,7 +88,7 @@ The psychological benefit of structure and organisation makes the actual program
 │   └── styles.css
 ├── components/
 │   ├── config.py
-│   ├── ...
+│   ├── data_access.py
 │   └── ...
 ├── database/
 │   ├── ...
@@ -120,7 +120,7 @@ This looks a little complicated, so let's explain some of the simpler items righ
 
 - app.py - This is the entrypoint of the application. In other words, the code execution starts here. As it stands, this file will setup and run the Dash application, and also contains the frontend work for the settings of the navbar, header, and main content area.
 - pages/ - This *folder* contains the pages of this multipage app. Dash automatically searches a folder called pages and then searches for a variable called `layout`. It uses this when a page is requested. This is where the majority of our work will be.
-- components/ - This is a sort of "catch-all" folder for scripts that don't belong anywhere else. For a smaller size project like this, it works fine. It contains logic that is too extensive to put coveniently in a page script. It also contains `config.py`, while has data for the apps global visual styling.
+- components/ - This is a sort of "catch-all" folder for scripts that don't belong anywhere else. For a smaller size project like this, it works fine. It contains logic that is too extensive to put coveniently in a page script. It also contains `config.py`, which has data for the apps global visual styling, and `data_access.py`, which manages the connection with the database.
 - assets/ - This is another folder that Dash finds automatically. It is used to contain assets the app can load, such as pictures. It also contains `.css` files for styling.
 
 ### Database
@@ -201,7 +201,7 @@ layout = dmc.AppShell([
 app.layout = dmc.MantineProvider(layout)
 ```
 
-Here, the `"height": 60` makes the header 60 pixels tall from the top of the screen, and `"width": 200"` makes the navbar 200 pixels wide from the left of the screen. The `dash.page_container` is the object that defines where the current page is located in the layout. You'll notice it's contained inside the AppShell, so the navbar and header will not change regardless of which page we are on. The `dmc.MantineProvider` is necessary to mantine to work and must be the outermost element in the layout. It provides some information to the components, such as the default styling.
+Here, the `"height": 60` makes the header 60 pixels tall from the top of the screen, and `"width": 200"` makes the navbar 200 pixels wide from the left of the screen. The `dash.page_container` is the object that defines where the current page is located in the layout. You'll notice it's contained inside the AppShell, so the navbar and header will not change regardless of which page we are on. The `dmc.MantineProvider` is necessary for mantine to work and must be the outermost element in the layout. It provides some information to the components, such as the default styling.
 
 For the navbar itself, it's contents are roughly defined as follows:
 
@@ -259,7 +259,7 @@ dash.register_page(__name__, path="/")
 layout = dmc.Text("HOME Page")
 ```
 
-pages/[app.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/app.py)
+[app.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/app.py)
 ```py
 app = Dash(__name__, use_pages=True)
 ```
@@ -287,13 +287,13 @@ We don't stricty need to develop the app locally if it's going to be hosted on t
 Covering SQL in detail is out of scope, but we basically need to create a new schema, create the tables, and load in the data. The actual SQL required after this stage is minimal.
 
 There are three tables in my design: 
-- The main table, called "Ingredient", which contains each ingredients name, effects (in a "Yes/No" format), weight, and cost.
+- The main table, called "Ingredient", which contains each ingredient's name, effects (in a "Yes/No" format), weight, and cost.
 - I then added an "Effect" table to store information about each effect, mainly if it's a positive or negative effect (i.e. useful or harmful, e.g. 'Strength' vs 'Poison', you can only use potions on yourself in Morrowind. This changes in later games in the series).
 - I also added a "Tool" table to store some information about the tools used in alchemy.
 
 The purpose of each of these tables is explained in more detail later.
 
-To create these tables (with no data) we run the following script. You can just copy and paste the contents and run them, or run it as a script. Very large scripts are better run as files as, I'm guessing, the graphical overhead of showing each lines success or failure is significant. Note the below is an *excerpt*. Please use the actual file from the repo.
+To create these tables (with no data) we run the following script. You can just copy and paste the contents and run them, or run it as a script. Very large scripts are better run as files as, I'm guessing, the graphical overhead of showing each line's success or failure is significant. Note the below is an *excerpt*. Please use the actual file from the repo.
 
 *database/[create_tables.sql](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/database/create_tables.sql)*
 ```sql
@@ -367,11 +367,11 @@ DATABASE_URI="mysql+mysqldb://<username>:<password>@<username>.mysql.pythonanywh
 ```
 
 Where:
-- <username> is the owner of the database. For local development, I'm using the `root` user.
-- <password> is the password you set for the database. It may default to `admin`.
-- <schema> is the name of the database schema.
+- \<username\> is the owner of the database. For local development, I'm using the `root` user.
+- \<password\> is the password you set for the database. It may default to `admin`.
+- \<schema\> is the name of the database schema.
 
-If you're using PostgreSQL or anyother database, you'll have to modify this.
+If you're using PostgreSQL or any other database, you'll have to modify this.
 
 Now, we basically need to "mirror" the database structure in Python using sqlalchemy. It can then treat database items as Python objects.
 
@@ -459,7 +459,7 @@ with server.app_context():
     DF_TOOLS = pd.DataFrame(db.session.execute(db.select(*Tool.__table__.columns).order_by(Tool.Quality)))
 ```
 
-The variables are stored as pandas dataframe. Here, we see an example of how sqlalchemy works. Most requests start with `db.session.execute(db.select(...))`. These operations map fairly easily to SQL. The slight oddity here is using `*Ingredient.__table__.columns` instead of just `Ingredient` to select all the columns. It turns out that selecting individual columns produces a dataframe as expected. However, selecting all the columns just using the table name returns an object where we cannot easily access the underlying data. Try it yourself to see the difference.
+The variables are stored as pandas dataframes. Here, we see an example of how sqlalchemy works. Most requests start with `db.session.execute(db.select(...))`. These operations map fairly easily to SQL. The slight oddity here is using `*Ingredient.__table__.columns` instead of just `Ingredient` to select all the columns. It turns out that selecting individual columns produces a dataframe as expected. However, selecting all the columns just using the table name returns an object where we cannot easily access the underlying data. Try it yourself to see the difference.
 
 Finally, if you've been paying careful attention, you'll realise the server here never actually links back to our dash app! So, we need to make an adjustment to our `app.py` to connect our modified flask server to it.
 
