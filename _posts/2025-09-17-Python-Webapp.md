@@ -1252,6 +1252,207 @@ Anyway, onto the next page.
 
 This is a hidden (no links to it) page which I've setup to add new ingredients to the database without having to do it directly with SQL. Its inputs are just the same as the ingredient table's columns, with an additional field that acts as a password to stop just anyone from editing the database, since anyone can access this page.
 
+For the 'password', I've created a token that the app checks against. If it's correct, the database access is allowed. Otherwise, it's not.
+
+*pages/[add_ingredient.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/add_ingredient.py)*
+```py
+path = os.path.join(os.path.dirname(__file__), "../.env")
+load_dotenv(path)
+
+TOKEN = os.environ.get("ADD_INGREDIENT_TOKEN")
+```
+
+The layout has a few inputs, of various types, in some `dmc.Group`'s. A button is at the end that calls a callback, and these elements are all in a stack. At the top of the stack is a `dmc.Alert` element that creates a new element to indicate success or failure of the operation.
+
+*pages/[add_ingredient.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/add_ingredient.py)*
+```py
+success_fail_alert = dmc.Alert(hide=True, variant='outline',
+                               withCloseButton=True, id="alert-success-fail")
+
+data_origin = DF_INGREDIENTS["Origin"].unique()
+
+attributes = dmc.Group([
+        dmc.NumberInput(label="Value", min=0, required=True, id="textinput_value"),
+        dmc.NumberInput(label="Weight", min=0, required=True, id="textinput_weight"),
+        dmc.TextInput(label="Ingredient", required=True, id="textinput_ingredient"),
+        dmc.TagsInput(label="Origin", data=data_origin, maxTags=1, required=True, id="textinput_origin"),
+        ],
+    grow=True,
+    wrap="nowrap")
+
+data_effects = DF_EFFECTS["Spell Effects"]
+
+properties = dmc.Group([
+        dmc.Select(label="Property 1", data=data_effects, clearable=False, required=True, searchable=True, id="textinput_property_1"),
+        dmc.Select(label="Property 2", data=data_effects, clearable=True, searchable=True, id="textinput_property_2"),
+        dmc.Select(label="Property 3", data=data_effects, clearable=True, searchable=True, id="textinput_property_3"),
+        dmc.Select(label="Property 4", data=data_effects, clearable=True, searchable=True, id="textinput_property_4"),
+        ],
+    grow=True,
+    wrap="nowrap")
+
+auth_check = dmc.TextInput(label="Token", required=True, id="textinput_auth")
+
+button = dmc.Button("Add Ingredient", c="myColors.9", id="button_add_ingredient")
+
+layout = dmc.Stack([
+    success_fail_alert,
+    attributes,
+    properties,
+    auth_check,
+    button,
+    ])
+```
+
+We've made use of `dmc.NumberInput` to force numbers and set a range, `dmc.TagsInput` to allow a dropdown selection while also allowing custom input, and `dmc.TextInput` for text. The `required` property is used to indicate to the user the fields that are mandatory.
+
+There's just one callback which sends information to the database via our `data_access.py` layer, and triggers the alert. The inputs and outputs are as follows:
+
+*pages/[add_ingredient.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/add_ingredient.py)*
+```py
+@callback(
+    Output("alert-success-fail", "children"),
+    Output("alert-success-fail", "title"),
+    Output("alert-success-fail", "color"),
+    Output("alert-success-fail", "hide"),
+    State("alert-success-fail", "hide"),
+    State("textinput_value", "value"),
+    State("textinput_weight", "value"),
+    State("textinput_ingredient", "value"),
+    State("textinput_origin", "value"),
+    State("textinput_property_1", "value"),
+    State("textinput_property_2", "value"),
+    State("textinput_property_3", "value"),
+    State("textinput_property_4", "value"),
+    State("textinput_auth", "value"),
+    Input("button_add_ingredient","n_clicks"),
+    prevent_initial_call=True
+    )
+def on_add_ingredient_button_clicked(
+        hide,
+        value_value, 
+        value_weight, 
+        value_ingredient,
+        value_origin,
+        value_property_1, 
+        value_property_2, 
+        value_property_3, 
+        value_property_4,
+        auth,
+        n_clicks
+        ):
+
+    # code goes here
+
+```
+
+There should be nothing tricky going on here.
+
+The actual function code then needs to check the token matches the value in the `.env` file and raise an alert if it doesn't.
+
+*pages/[add_ingredient.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/add_ingredient.py)*
+```py
+@callback(
+    #...
+    )
+def on_add_ingredient_button_clicked(
+        #...
+        ):
+
+    TOKEN = os.environ.get("ADD_INGREDIENT_TOKEN")
+    if auth != TOKEN:
+        return "Access Denied.", "Failed!", "red", False
+
+    # more code below
+
+```
+
+If it does match, we need to check all required values are not empty. The required attribute just create a red star and some additional logic, it does not stop the user from inputting nothing. It also can count whitespace as being enough.
+
+*pages/[add_ingredient.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/add_ingredient.py)*
+```py
+@callback(
+    #...
+    )
+def on_add_ingredient_button_clicked(
+        #...
+        ):
+
+    # more code above
+
+    starred = [value_value, value_weight, value_ingredient,
+               value_origin, value_property_1]
+    if True in [i in [None, [], ""] for i in starred]:
+        return "Missing required inputs.", "Failed!", "red", False
+
+    # more code below
+
+```
+
+The line `True in [i in [None, [], ""] for i in starred]` looks a bit confusing. It's just checking if each required element is either `None`, `[]`, or `""`. These are seemingly all the possible 'empty' values that can be generated. For example, `None` is the default value until the field is first assigned a value.
+
+One problem we have is that some effects are like 'Resist Magicka' while SQLAlchemy uses variables which cannot contain spaces, e.g. `Resist_Magicka`. So, we need to replace spaces with underscores.
+
+*pages/[add_ingredient.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/add_ingredient.py)*
+```py
+@callback(
+    #...
+    )
+def on_add_ingredient_button_clicked(
+        #...
+        ):
+
+    # more code above
+
+    properties = [value_property_1, value_property_2,
+                  value_property_3, value_property_4]
+
+    effects = {i.replace(" ","_") : '1' for i in properties if i not in [None, [], ""]}
+
+    # more code below
+
+```
+
+We set the value to `1` for the effects mentioned. If you remember from way back up, the database uses a `1` to indicate the effect exists in an ingredient. We also make sure to avoid empty fields here.
+
+The only thing left is accessing the database. I've added some error checking for dealing with database errors.
+
+*pages/[add_ingredient.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/add_ingredient.py)*
+```py
+@callback(
+    #...
+    )
+def on_add_ingredient_button_clicked(
+        #...
+        ):
+
+    # more code above
+
+    new_ingredient = Ingredient(
+        Value=value_value,
+        Weight=value_weight,
+        Ingredient=value_ingredient,
+        Origin=value_origin,
+        First_Effect=value_property_1,
+        **effects,
+        )
+
+    try:
+        db.session.add(new_ingredient)
+        db.session.commit()
+    except IntegrityError:
+        return "Duplicate ingredient name.", "Failed!", "red", False
+    except OperationalError:
+        return "Database Error. Try again later.", "Failed!", "red", False
+
+    return f"Ingredient '{value_ingredient}' successfully added!", "Success!", "green", False
+
+    # more code below
+
+```
+
+And that's that. It's a simple page but it means I can add new ingredients to the database fairly slowly instead of extremely slowly :)
+
 ## Outro
 
 This concludes everything (or almost everything!) about the app's design, content, and purpose. If you've somehow got this far, then I thank you for reading and hope you learnt something new, or where inspired to create your own application. 
