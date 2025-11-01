@@ -648,41 +648,50 @@ This is the landing page (the 'root' page) and describes how to use the webapp a
 dash.register_page(__name__, path="/")
 ```
 
-The top of the page contains an image, which turns out to be a little troublesome to make look good on different device/browser sizes.
+Most of the layout is just a stack of `dmc.Text` and `dmc.Title` elements. A notable exception in an image near the top of the screen. To make this look at least reasonable on a range of devices, we need to keep the aspect ratio constant.
 
 *pages/[home.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/home.py)*
 ```py
-"Work in Progress"
+dmc.AspectRatio(
+    dmc.Image(
+        src="assets/home-1.jpg",
+        radius="md",
+        ),
+    ratio=16 / 9,
+    style={"max-width": "500px"}
+    )
 ```
 
-Here, we've set an aspect ratio to keep the image a consistent size. Otherwise, parts of it would be hidden when the page gets too small. A maximum width is set to stop a gigantic image from taking up most of the screen space. Note that the image itself is placed in the assets folder and Dash can find this folder automatically. 
+If we don't set the aspect ratio, parts of the image would be hidden when the page gets too small. A maximum width is set to stop a gigantic image from taking up most of the screen space. Note that the image itself is placed in the assets folder and Dash can find this folder automatically. 
 
-To not look unwieldy on small screens, we can make a media query to adjust the layout when the screen is under a certain size.
+Most of the rest of the layout is just a stack of text elements. Some buttons are thrown in to make it quicker for users to jump to the page they wish to visit. At the end, some information is given about the developer (me!), including the git repo location. See the file itself for the full details.
 
-```css
-placeholder
-```
-
-Most of the rest of the layout is just a stack of text elements. Some buttons are thrown in to make it quicker for users to jump to the page they wish to visit. At the end, some information is given about the developer (me!), including the git repo location.
+Something interesting we can do when we have a lot of text is put the text in a seperate file and load it in. This keeps the code and its assets seperate, making the code easier to read and the assets easier to change.
 
 *pages/[home.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/home.py)*
 ```py
-layout = dmc.Stack([
-    dmc.Title("text", order=3),
-    dmc.Text([
-        "text",
-        "etc",
-        ],
-    ),
-    dmc.Stack([
-        dmc.Text("text"),
-        dmc.Text("etc"),
-        ],
-    ),
-])
+relative_loc = "../assets/home-txt.txt"
+home_text_loc = os.path.join(os.path.dirname(__file__), relative_loc)
+
+with open(home_text_loc) as f:
+    home_text = [line for line in f]
+
+# We can use this text in text elements. For example:
+dmc.Text([
+    home_text[0],
+    home_text[1],
+    ])
 ```
 
-The code above is just an example since there's little interesting to say. The only slightly interesting thing to note is that `dmc.Text` can take a list of text as input while treating it like one big block of text. This can be useful if you want parts of the text to change by storing them in variables.
+*assets/[home-txt.txt](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/assets/home-txt.txt)*
+```txt
+example text for line 1
+example text for line 2
+```
+
+Because there seems to be not built in way in dash to load text from files, we have to find the assets file explicitly. I decided to store each 'block' of code on a seperate line in the `.txt` file. A better system likely exists, but due to the effort outweighting the gain, this simple solution suffices for our purposes.
+
+One last note is that, since `dmc.Text` joins its child elements together, we can set some text as a variable and dynamically change it. For example, we could edit `home_text[1]` above and this would easily allow us to change its contents while keeping the final result as a single paragraph. I haven't found a use for this in this project, but it's undoubtedly useful in general.
 
 ## Potion Database
 
