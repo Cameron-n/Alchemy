@@ -639,9 +639,50 @@ Now the navbar has some styling written in Python, and uses the styling of the `
 
 This covers the basics of how to style components.
 
-## Home page (WIP)
+## Home page
 
-A simple page to describe how to use the webapp and where to go next. Also contains any misc. information like the location of the git repo.
+This is the landing page (the 'root' page) and describes how to use the webapp and where to go next. To set the page as the root page, we need to specify this in the register page function.
+
+*pages/[home.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/home.py)*
+```py
+dash.register_page(__name__, path="/")
+```
+
+The top of the page contains an image, which turns out to be a little troublesome to make look good on different device/browser sizes.
+
+*pages/[home.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/home.py)*
+```py
+"Work in Progress"
+```
+
+Here, we've set an aspect ratio to keep the image a consistent size. Otherwise, parts of it would be hidden when the page gets too small. A maximum width is set to stop a gigantic image from taking up most of the screen space. Note that the image itself is placed in the assets folder and Dash can find this folder automatically. 
+
+To not look unwieldy on small screens, we can make a media query to adjust the layout when the screen is under a certain size.
+
+```css
+placeholder
+```
+
+Most of the rest of the layout is just a stack of text elements. Some buttons are thrown in to make it quicker for users to jump to the page they wish to visit. At the end, some information is given about the developer (me!), including the git repo location.
+
+*pages/[home.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/home.py)*
+```py
+layout = dmc.Stack([
+    dmc.Title("text", order=3),
+    dmc.Text([
+        "text",
+        "etc",
+        ],
+    ),
+    dmc.Stack([
+        dmc.Text("text"),
+        dmc.Text("etc"),
+        ],
+    ),
+])
+```
+
+The code above is just an example since there's little interesting to say. The only slightly interesting thing to note is that `dmc.Text` can take a list of text as input while treating it like one big block of text. This can be useful if you want parts of the text to change by storing them in variables.
 
 ## Potion Database
 
@@ -1199,3 +1240,13 @@ Anyway, onto the next page.
 ## Ingredient Info (WIP)
 
 ## Add Ingredient
+
+This is a hidden (no links to it) page which I've setup to add new ingredients to the database without having to do it directly with SQL. Its inputs are just the same as the ingredient table's columns, with an additional field that acts as a password to stop just anyone from editing the database, since anyone can access this page.
+
+## Outro
+
+This concludes everything (or almost everything!) about the app's design, content, and purpose. If you've somehow got this far, then I thank you for reading and hope you learnt something new, or where inspired to create your own application. 
+
+Next up, I hope to start my article on a newton fractal library I'm making since the only one I could find, `fractpy`, is fairly basic. I'd also like to finish a *very* small game I've been creating in Godot with a language similar to Python. In the near future, it would be nice to explore some other programming languages and tools. Notably, writing some C/C++ modules that Python can load would be useful for writing fast code while still sticking to Python's easy syntax and powerful set of existing libraries.
+
+Until that time, thanks for, er, reading, and goodbye!
