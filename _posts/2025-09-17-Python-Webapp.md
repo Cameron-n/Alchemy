@@ -1293,7 +1293,7 @@ These fields corrospond to the "Alchemy" skill, "Intelligence" attribute, and "L
 
 We then need the alchemy tools and the ingredients to be selectable. The picture below is what the actual in-game menu looks like.
 
-![](https://github.com/Cameron-n/Alchemy/blob/master/assets/PM-2.png)
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/blob/master/assets/PM-2.png)
 
 First, we recreate the tools line. Tools have five different variants each, and each increases in power up to the 'Secret Grandmaster' level.
 
@@ -1363,7 +1363,7 @@ ingredients = dmc.Stack([
 
 We see the `grouped_data` variable being used here to group the ingredients selection. It looks like this:
 
-![](https://github.com/Cameron-n/Alchemy/blob/master/assets/PM-1.png)
+![](https://raw.githubusercontent.com/Cameron-n/Alchemy/blob/master/assets/PM-1.png)
 
 And finally combine the tools and ingredients together.
 
@@ -1446,6 +1446,8 @@ layout = dmc.Stack([
 ```
 
 ### Backend/Callbacks
+
+
 
 ## Ingredient Info (WIP)
 
