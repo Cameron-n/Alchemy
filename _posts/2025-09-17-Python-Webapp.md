@@ -1264,7 +1264,7 @@ grouped_data = [
 ]
 ```
 
-The variable `grouped_data` is a list of dictionaries with the `group` key corrosponding to an origin, and the `items` key to the ingredients of that origin. This format is used later to display a dropdown menu with groupings.
+The variable `grouped_data` is a list of dictionaries with the `group` key corrosponding to an origin, and the `items` key to the ingredients of that origin. This format is used later to display a dropdown menu with groupings. We also use `.fillna` as `NaNs` are used in the database but we later compare some values and 0's easily translate to `False` but `NaNs` tend to have confusing results. For example, `np.nan is True` is false, `np.nan is False` is false, but `np.nan` itself it 'truthy' (will evaluate to true in an if statement).
 
 Since Morrowind is an RPG, you have abilities that are governed by numbers. We need to set those numbers.
 
@@ -1289,13 +1289,46 @@ stats = dmc.Group([
     ], wrap="nowrap")
 ```
 
-These fields corrospond to the "Alchemy" skills, "Intelligence", and "Luck". These are the only attributes of a character that affect a potion's strength. They must be integers and cannot be negative. The `nowrap` property means that the group will always stay on the same line.
+These fields corrospond to the "Alchemy" skill, "Intelligence" attribute, and "Luck" attribute. These are the only attributes of a character that affect a potion's strength. They must be integers and cannot be negative. The `nowrap` property means that the group will always stay on the same line.
 
 We then need the alchemy tools and the ingredients to be selectable. The picture below is what the actual in-game menu looks like.
 
 [//]: #(picture)
 
-First, we recreate the ingredients line.
+First, we recreate the tools line. Tools have five different variants each, and each increases in power up to the 'Secret Grandmaster' level.
+
+*pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
+```py
+alchemy_tools_title = dmc.Text("Apparatus")
+
+alchemy_tools = dmc.Group([
+    dmc.Select(label="Mortar and Pestle",
+               data=[i for i in DF_TOOLS["Name"][DF_TOOLS["Type"]=="Mortar and Pestle"]],
+               value=DF_TOOLS[DF_TOOLS["Type"]=="Mortar and Pestle"][DF_TOOLS["Quality"]==0.5]["Name"].iloc[0],
+               allowDeselect=False,
+               id="mortar"),
+    dmc.Select(label="Alembic",
+               data=[i for i in DF_TOOLS["Name"][DF_TOOLS["Type"]=="Alembic"]],
+               id="alembic"),
+    dmc.Select(label="Calcinator",
+               data=[i for i in DF_TOOLS["Name"][DF_TOOLS["Type"]=="Calcinator"]],
+               id="calcinator"),
+    dmc.Select(label="Retort",
+               data=[i for i in DF_TOOLS["Name"][DF_TOOLS["Type"]=="Retort"]],
+               id="retort"),
+    ],
+    grow=True,
+    wrap="nowrap",)
+
+alchemy_tools = dmc.Stack([
+    alchemy_tools_title,
+    alchemy_tools,
+    ], gap=0)
+```
+
+The "Mortar and Pestle" is necessary for making potions, so it cannot be unselected and starts out with the lowest quality version.
+
+Then we recreate the ingredients line.
 
 *pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
 ```py
@@ -1332,42 +1365,7 @@ We see the `grouped_data` variable being used here to group the ingredients sele
 
 [//]: #(picture)
 
-We then recreate the tools line.
-
-*pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
-```py
-alchemy_tools_title = dmc.Text("Apparatus")
-
-alchemy_tools = dmc.Group([
-    dmc.Select(label="Mortar and Pestle",
-               data=[i for i in DF_TOOLS["Name"][DF_TOOLS["Type"]=="Mortar and Pestle"]],
-               value=DF_TOOLS[DF_TOOLS["Type"]=="Mortar and Pestle"][DF_TOOLS["Quality"]==0.5]["Name"].iloc[0],
-               allowDeselect=False,
-               renderOption={"function": "renderOptionSelect"},
-               id="mortar"),
-    dmc.Select(label="Alembic",
-               data=[i for i in DF_TOOLS["Name"][DF_TOOLS["Type"]=="Alembic"]],
-               renderOption={"function": "renderOptionSelect"},
-               id="alembic"),
-    dmc.Select(label="Calcinator",
-               data=[i for i in DF_TOOLS["Name"][DF_TOOLS["Type"]=="Calcinator"]],
-               renderOption={"function": "renderOptionSelect"},
-               id="calcinator"),
-    dmc.Select(label="Retort",
-               data=[i for i in DF_TOOLS["Name"][DF_TOOLS["Type"]=="Retort"]],
-               renderOption={"function": "renderOptionSelect"},
-               id="retort"),
-    ],
-    grow=True,
-    wrap="nowrap",)
-
-alchemy_tools = dmc.Stack([
-    alchemy_tools_title,
-    alchemy_tools,
-    ], gap=0)
-```
-
-And finally combine them all together
+And finally combine the tools and ingredients together.
 
 ```py
 ingredient_effect_boxes = dmc.Group([
@@ -1386,7 +1384,68 @@ left_items = dmc.Stack([
     ])
 ```
 
-Note that I've added some `dmc.Card`'s as another line. This will be used to display each ingredient's effects since, in-game, you hover over the ingredients to see the effects but that would be a little complicated to do here. For the pedantic, the alchemy skill gates effect knowledge every 15 points. In others words, no effects can be seen for an individual ingredient below 15 Alchemy. At 30, 2 effects. At 45, 3. And at 60, all 4. I have no implemented this as the whole point is to calculate potions and effects, not hide them.
+Note that I've added some `dmc.Card`'s as another line. This will be used to display each ingredient's effects since, in-game, you hover over the ingredients to see the effects but that would be a little complicated to do here. Since they are  dynamic, we'll change them later will a callback.
+
+For the pedantic, the alchemy skill gates effect knowledge every 15 points. In others words, no effects can be seen for an individual ingredient below 15 Alchemy. At 30, 2 effects. At 45, 3. And at 60, all 4. I have not implemented this as the whole point is to calculate potions and effects, not hide them.
+
+Now, we create the list of effects that will result from the selected ingredients.
+
+*pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
+```py
+potion_effects_title = dmc.Text("Created Effects")
+
+potion_effects_stack = dmc.Card(id="potion_maker_effects")
+
+magnitude_and_duration = dmc.Card(id="mag_and_dur")
+
+right_items = dmc.Group([
+    potion_effects_stack,
+    magnitude_and_duration,
+],
+    align="stretch",
+    grow=True,
+    className="potionmaker-border",
+    style={"height": "100%"}
+)
+
+right_items = dmc.Stack([
+    potion_effects_title,
+    right_items,
+],
+    style={"height": "200px", "width": "530px"})
+```
+
+This currently contains no content for the `potion_effects_stack` and `magnitude_and_duration` because, since they are also dynamic, we will use callbacks to change them. The css defined by "potionmaker-border" is defined below.
+
+*assets/[styles.css](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/assets/styles.css)*
+```css
+.potionmaker-border {
+    border-style: groove;
+    border-width: thick;
+    border-color: var(--mantine-color-myColors-2);
+}
+```
+
+The last step in the layout is to combine every component together.
+
+*pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
+```py
+whole_thing = dmc.Group([
+    left_items,
+    right_items,
+],
+    align="flex-start",
+    p="md",
+    className="potionmaker-border"
+)
+
+layout = dmc.Stack([
+    stats,
+    whole_thing,
+    ])
+```
+
+### Backend/Callbacks
 
 ## Ingredient Info (WIP)
 
