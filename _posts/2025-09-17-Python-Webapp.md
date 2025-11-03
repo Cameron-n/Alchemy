@@ -1519,9 +1519,154 @@ The second callback works out which effects will appear in the potion, and updat
 
 *pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
 ```py
+@callback(
+    Output("potion_maker_effects", "children"),
+    [Input(f"ing_{i+1}_effects", "children") for i in range(4)]
+)
+def update_effect_list_final(ing_1, ing_2, ing_3, ing_4):
+
+    values = [ing_1, ing_2, ing_3, ing_4]
+    list_of_lists = []
+    num = 0
+
+    for i in values:
+        if not i:
+            i = [{'props': {'children': f'empty_{num}'}}]
+        num += 1
+        list_of_lists.append([j['props']['children'] for j in i])
+
+    content = [dmc.Text(i) for i in potion_effects(list_of_lists)]
+
+    return content
 ```
 
+Here, for each ingredient's list of effects, we need to format the data correctly as you may remember it is in a list of `dmc.Text` objectc. Fortunately, we can manipulate the underlying data as it is stored as a dictionary.
+
+The function `potion_effects` actually works out which effects belong in the potion.
+
+*pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
+```py
+def potion_effects(list_of_effect_lists):
+
+    counter = Counter()
+    for i in list_of_effect_lists:
+        counter.update(i)
+
+    effects = [string for string, count in counter.items() if count >= 2]
+
+    return effects
+```
+
+It works by counting if an effect occurs at least twice between all the ingredients. If it does, it belongs in the potion.
+
 The last callback calculates the magnitude and duration of each effect. The formulas involved can be a little complicated as they change depending on what tools are in use, and if the effect is 'positive' or 'negative'. I'd ideally also verify the formulas in-game since I've got some conflicting results. However, that's a bit out of scope.
+
+*pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
+```py
+@callback(
+    Output("mag_and_dur", "children"),
+    Input("alchemy", "value"),
+    Input("intelligence", "value"),
+    Input("luck", "value"),
+    Input("mortar", "value"),
+    Input("alembic", "value"),
+    Input("retort", "value"),
+    Input("calcinator", "value"),
+    Input("potion_maker_effects", "children")
+)
+def update_potion_mag_and_dur(
+        alchemy,
+        intelligence,
+        luck,
+        mortar,
+        alembic,
+        retort,
+        calcinator,
+        children
+        ):
+
+    # get effect names
+    if not children:
+        return None
+
+    effect_names = [i['props']['children'] for i in children]
+
+    # get effect costs from names
+    effect_costs = [DF_EFFECTS["Base Cost"][DF_EFFECTS["Spell Effects"] == i].iloc[0] for i in effect_names]
+
+    # get positive or negative
+    pos_neg = [DF_EFFECTS["Positive"][DF_EFFECTS["Spell Effects"] == i].iloc[0] for i in effect_names]
+
+    # get tool quality
+    mortar = DF_TOOLS["Quality"][DF_TOOLS["Name"]==mortar].iloc[0]
+    if alembic:
+        alembic = DF_TOOLS["Quality"][DF_TOOLS["Name"]==alembic].iloc[0]
+    if retort:
+        retort = DF_TOOLS["Quality"][DF_TOOLS["Name"]==retort].iloc[0]
+    if calcinator:
+        calcinator = DF_TOOLS["Quality"][DF_TOOLS["Name"]==calcinator].iloc[0]
+    
+    # calculate mag and duration
+    stack_list = []
+    for cost, pos in zip(effect_costs, pos_neg):
+        mag, dur = potion_magnitude_and_duration(
+            alchemy,
+            intelligence,
+            luck,
+            mortar,
+            alembic,
+            retort,
+            calcinator,
+            cost,
+            positive=pos
+            )
+        text = f"{round(mag)} points for {round(dur)} seconds"
+        stack_list.append(dmc.Text(text))
+    
+    return stack_list
+```
+
+It's rather long but doing nothing complicated. Like before, the callback itself formats the data and feeds it to a seperate function. The calculation itself is beyond the scope of this project but is presented for your interest below.
+
+*pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
+```py
+def potion_magnitude_and_duration(
+            alchemy, 
+            intelligence, 
+            luck,
+            mortar, 
+            alembic,
+            retort,
+            calcinator,
+            base_cost,
+            positive=True
+            ):
+
+    magnitude_base = mortar*(alchemy+intelligence/10+luck/10)/(3*base_cost)
+    duration_base = 3 * magnitude_base
+
+    extras = 0
+    mult = 1
+    if positive:
+        if retort and calcinator:
+            extras = round(calcinator) + 2 * (round(retort))
+        elif retort:
+            extras = round(retort)
+        elif calcinator:
+            extras = round(calcinator)
+    else:
+        if alembic and calcinator:
+            mult = 1 / (2 * alembic + 3 * calcinator)
+        elif alembic:
+            mult = 1 / (alembic + 1)
+        elif calcinator:
+            extras = round(calcinator)
+
+    magnitude = magnitude_base * mult + extras
+    duration = duration_base * mult + extras
+
+    return magnitude, duration
+```
 
 ## Ingredient Info (WIP)
 
