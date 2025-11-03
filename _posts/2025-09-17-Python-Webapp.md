@@ -1447,7 +1447,81 @@ layout = dmc.Stack([
 
 ### Backend/Callbacks
 
+There are three callbacks used on the potion maker page.
 
+Since each ingredient can only be used once per potion, it would be nice if an ingredient was removed from the other three ingredient slots if it was already in use. After a fair bit of trial and error, a fairly compact solution emerged.
+
+*pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
+```py
+@callback(
+    [Output(f"ing_{i+1}_effects", "children") for i in range(4)],
+    [Output(f"ing_{i+1}", "data") for i in range(4)],
+    [Input(f"ing_{i+1}", "value") for i in range(4)],
+    prevent_initial_call=True
+)
+def update_effect_dropdowns(value_1, value_2, value_3, value_4):
+
+    values = [value_1, value_2, value_3, value_4]
+    data_list = []
+
+    for value in values:
+        data_1 = deepcopy(grouped_data)
+        values_1 = deepcopy(values)
+
+        values_1.remove(value)
+        for i in values_1:
+            if i:
+                for j in range(len(data_origins)):
+                    if i in list(data_1[j]["items"]):
+                        data_1[j]["items"] = data_1[j]["items"][data_1[j]["items"] != i]
+        data_list.append(data_1)
+
+    i = int(dash.callback_context.triggered_id[-1])
+
+    return_tuple = [dash.no_update] * 4
+    return_tuple[i-1] = update_effect_list(values[i-1])
+    return_tuple += data_list
+    return_tuple = tuple(return_tuple)
+
+    return return_tuple
+```
+
+All we're really doing is, for each value in the line of ingredients, taking that value away from the data for each of the other selects. We also update the `dmc.Card` below the ingredient selected using the function `update_effect_list` defined below.
+
+```py
+def update_effect_list(value):
+    if value is None:
+        return None
+
+    ingredient_row = DF_INGREDIENTS[DF_INGREDIENTS["Ingredient"] == value]
+    ingredient_row_not_nan = ingredient_row.notna().iloc[0]
+    columns_not_nan = DF_INGREDIENTS.columns[ingredient_row_not_nan]
+
+    effects = list(columns_not_nan)
+    effects.remove("Value")
+    effects.remove("Weight")
+    effects.remove("Ingredient")
+    effects.remove("Origin")
+    effects.remove("First Effect")
+
+    content = [dmc.Text(i, truncate="end") for i in effects]
+
+    return content
+```
+
+This simply gets the row in `DF_INGREDIENTS` corrosponding to the selected ingredient, finds its effects, and returns them as a list of `dmc.Text` elements to display in the `dmc.Card`.
+
+Because this is one callback that affects eight outputs, the final few lines (of the callback) help to make the process of determining which outputs need to be affected simpler. The `dash.callback_context.triggered_id` gets, well, the id of the element that triggered the callback. The `dash.no_update` stops, well, an output from updating. So, the callback can be triggered by any of the four ingredient slots and will only update it's own `dmc.Card` object. 
+
+It may, admittedly, have been better to have two seperate callbacks. It can be a little difficult as splitting things up is usually a good idea, but having multiple callbacks which trigger independantly has its own struggles. You can get in funny loops when they start triggering each other...
+
+The second callback works out which effects will appear in the potion, and updates the effect box.
+
+*pages/[potion_maker.py](https://github.com/Cameron-n/Morrowind-Alchemy/blob/main/pages/potion_maker.py)*
+```py
+```
+
+The last callback calculates the magnitude and duration of each effect. The formulas involved can be a little complicated as they change depending on what tools are in use, and if the effect is 'positive' or 'negative'. I'd ideally also verify the formulas in-game since I've got some conflicting results. However, that's a bit out of scope.
 
 ## Ingredient Info (WIP)
 
